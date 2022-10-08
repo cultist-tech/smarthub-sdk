@@ -1,3 +1,5 @@
+/// The core methods for a rent non fungible tokens. Extension standards may be
+/// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_rent_core {
     ($contract:ident, $tokens:ident) => {

@@ -27,45 +27,72 @@
 - [x] reveal
 - [ ] upgrade
 
+[example](https://github.com/cultist-tech/near-nft)
+
 ## FT
 - [x] core
 - [x] storage_management
 
+[example](https://github.com/cultist-tech/near-ft)
+
 ## MT
 - [ ] core
 - [ ] storage_management
+
+[example](https://github.com/cultist-tech/near-mt)
 
 ## Market
 - [x] core
 - [x] enumeration
 - [ ] storage_management
 
+[example](https://github.com/cultist-tech/near-market)
+
 ## Rent
 - [x] core
 - [x] enumeration
 - [ ] storage_management
+
+[example](https://github.com/cultist-tech/near-rent)
 
 ## NFT IDO
 - [x] core
 - [x] enumeration
 - [ ] storage_management
 
+[example](https://github.com/cultist-tech/near-nft-ido)
+
 ## Tournament
 - [x] core
 - [x] enumeration
 - [x] nft_access
 
+[example](https://github.com/cultist-tech/near-tournament)
+
 ## NFT Fractionation
 - [x] core
 - [x] enumeration
+
+[example](https://github.com/cultist-tech/near-fractionation)
 
 ## Escrow
 - [x] core
 - [x] enumeration
 
-## Dao
-- [ ] core
+[example](https://github.com/cultist-tech/near-escrow)
+
+## Reputation
+- [x] core
+
+[example](https://github.com/cultist-tech/near-reputation)
 
 ## Referral
 - [ ] core
+
+## Tools
+- [x] owner
+- [x] pause contract
+- [x] blacklist
+- [x] whitelist
+
 

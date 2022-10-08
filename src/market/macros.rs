@@ -1,3 +1,5 @@
+/// The core methods for a basic nft market. Extension standards may be
+/// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_market_core {
     ($contract:ident, $tokens:ident $(, $assert_action: ident)?) => {

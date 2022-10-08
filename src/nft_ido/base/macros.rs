@@ -1,5 +1,5 @@
-// Ido
-
+/// The core methods for a nft-ido. Extension standards may be
+/// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_nft_ido_core {
     ($contract:ident, $tokens:ident, $assert_access:ident) => {

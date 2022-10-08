@@ -1,3 +1,5 @@
+/// The core methods for a escrow. Extension standards may be
+/// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_escrow_core {
     ($contract:ident, $tokens:ident, $assert_use:ident) => {

@@ -1,5 +1,5 @@
-// Core
-
+/// The core methods for a basic non fungible token. Extension standards may be
+/// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_non_fungible_token_core {
     ($contract:ident, $token:ident $(, $assert_transfer:ident)?) => {
