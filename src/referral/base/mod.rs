@@ -7,6 +7,7 @@ pub use self::base_impl::{ ReferralFeature };
 pub use self::receiver::{ ReferralReceiver };
 use near_sdk::AccountId;
 use crate::referral::ProgramId;
+use crate::referral::metadata::{ InfluencerId, InfluencerRoyalty };
 
 pub trait ReferralCore {
     // get influencer address by account
@@ -27,4 +28,11 @@ pub trait ReferralCore {
         influencer_id: AccountId,
         program_id: ProgramId
     );
+
+    fn referral_program_royalty(
+        &self,
+        contract_id: AccountId,
+        influencer_id: InfluencerId,
+        program_id: ProgramId
+    ) -> Option<InfluencerRoyalty>;
 }

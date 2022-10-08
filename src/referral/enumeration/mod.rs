@@ -2,6 +2,7 @@ use near_sdk::AccountId;
 use near_sdk::json_types::{U128};
 
 mod enumeration_impl;
+mod internal;
 
 pub trait ReferralEnumeration {
   // get referrals by contract

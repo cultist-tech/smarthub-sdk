@@ -175,25 +175,6 @@ impl FungibleTokenCore for FungibleToken {
                     .ft_resolve_transfer(sender_id, receiver_id, amount.into())
             )
             .into()
-
-        // Initiating receiver's call and the callback
-        // ext_fungible_token_receiver::ft_on_transfer(
-        //     sender_id.clone(),
-        //     amount.into(),
-        //     msg,
-        //     receiver_id.clone(),
-        //     NO_DEPOSIT,
-        //     env::prepaid_gas() - GAS_FOR_FT_TRANSFER_CALL,
-        // )
-        // .then(ext_self::ft_resolve_transfer(
-        //     sender_id,
-        //     receiver_id,
-        //     amount.into(),
-        //     env::current_account_id(),
-        //     NO_DEPOSIT,
-        //     GAS_FOR_FT_RESOLVE_TRANSFER,
-        // ))
-        // .into()
     }
 
     fn ft_total_supply(&self) -> U128 {
