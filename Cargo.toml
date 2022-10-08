@@ -1,12 +1,12 @@
 [package]
 name = "mfight_sdk"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Muzikanto <schiriy_maxim@icloud.com>"]
 edition = "2018"
 description = """
 Rust library for writing NEAR smart contracts.
 """
-homepage = "https://github.com/cultist-tech"
+homepage = "https://near-constructor.vercel.app"
 readme = "README.md"
 categories = ["wasm"]
 license = "MIT OR Apache-2.0"
