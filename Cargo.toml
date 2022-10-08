@@ -1,0 +1,39 @@
+[package]
+name = "mfight_sdk"
+version = "0.1.0"
+authors = ["Muzikanto <schiriy_maxim@icloud.com>"]
+edition = "2018"
+description = """
+Rust library for writing NEAR smart contracts.
+"""
+homepage = "https://github.com/cultist-tech"
+readme = "README.md"
+categories = ["wasm"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/cultist-tech/mfight_sdk"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = "1"
+serde_json = "1.0"
+rand="0.5.0"
+near-sdk = { version = "4.1.0-pre.3", features = ["abi"] }
+schemars = "0.8"
+
+[dev-dependencies]
+workspaces = "0.4.1"
+tokio = { version = "1.14", features = ["full"] }
+anyhow = "1.0"
+near-abi = "0.1.0-pre.0"
+zstd = "0.11"
+near-units = "0.2.0"
+
+[profile.release]
+codegen-units=1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true
