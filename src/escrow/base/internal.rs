@@ -9,8 +9,8 @@ use crate::ft::base::core_impl::GAS_FOR_FT_TRANSFER;
 use crate::nft::base::GAS_FOR_NFT_TRANSFER;
 use crate::escrow::base::{ ext_self };
 
-const GAS_FOR_RESOLVE_REMOVE: Gas = Gas(15_000_000_000_000);
-const GAS_FOR_RESOLVE_ACCEPT: Gas = Gas(15_000_000_000_000);
+pub(crate) const GAS_FOR_RESOLVE_REMOVE: Gas = Gas(25_000_000_000_000);
+pub(crate) const GAS_FOR_RESOLVE_ACCEPT: Gas = Gas(25_000_000_000_000);
 
 /// Helper structure to for keys of the persistent collections.
 #[derive(BorshStorageKey, BorshSerialize)]
@@ -101,6 +101,11 @@ impl EscrowFeature {
                 ft_contract_id_out: _,
                 amount_out: _,
             } => {
+                require!(
+                    env::prepaid_gas() > GAS_FOR_RESOLVE_REMOVE + GAS_FOR_NFT_TRANSFER,
+                    "More gas is required"
+                );
+
                 self.internal_transfer_ft(&owner_id, &ft_contract_id_in, &amount_in).then(
                     ext_self
                         ::ext(env::current_account_id())
@@ -119,6 +124,11 @@ impl EscrowFeature {
                 nft_token_id_out: _,
                 nft_contract_id_out: _,
             } => {
+                require!(
+                    env::prepaid_gas() > GAS_FOR_RESOLVE_REMOVE + GAS_FOR_FT_TRANSFER,
+                    "More gas is required"
+                );
+
                 self.internal_transfer_ft(&owner_id, &ft_contract_id_in, &amount_in).then(
                     ext_self
                         ::ext(env::current_account_id())
@@ -137,6 +147,11 @@ impl EscrowFeature {
                 ft_contract_id_out: _,
                 amount_out: _,
             } => {
+                require!(
+                    env::prepaid_gas() > GAS_FOR_RESOLVE_REMOVE + GAS_FOR_NFT_TRANSFER,
+                    "More gas is required"
+                );
+
                 self.internal_transfer_nft(&owner_id, &nft_contract_id_in, &nft_token_id_in).then(
                     ext_self
                         ::ext(env::current_account_id())
@@ -155,6 +170,11 @@ impl EscrowFeature {
                 nft_contract_id_out: _,
                 nft_token_id_out: _,
             } => {
+                require!(
+                    env::prepaid_gas() > GAS_FOR_RESOLVE_REMOVE + GAS_FOR_FT_TRANSFER,
+                    "More gas is required"
+                );
+
                 self.internal_transfer_nft(&owner_id, &nft_contract_id_in, &nft_token_id_in).then(
                     ext_self
                         ::ext(env::current_account_id())

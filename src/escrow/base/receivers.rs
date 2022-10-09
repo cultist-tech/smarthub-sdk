@@ -5,7 +5,8 @@ use crate::escrow::{
     TokenId,
     EscrowEnum,
 };
-use near_sdk::{ PromiseOrValue, AccountId, env };
+use crate::escrow::base::internal::{GAS_FOR_RESOLVE_ACCEPT};
+use near_sdk::{ PromiseOrValue, AccountId, env, require };
 use near_sdk::json_types::U128;
 
 impl EscrowFeature {
@@ -67,6 +68,11 @@ impl EscrowFeature {
 
             env::panic_str(&"Invalid params");
         } else if let Some(offer_id) = offer_id {
+          require!(
+              env::prepaid_gas() > GAS_FOR_RESOLVE_ACCEPT,
+              "More gas is required"
+            );
+
             let owner_id = self.offer_owner_by_account.get(&offer_id).unwrap();
             self.internal_accept_offer_unknown_to_ft(
                 &owner_id,
@@ -118,8 +124,6 @@ impl EscrowFeature {
             }
             if let Some(nft_contract_id_out) = nft_contract_id_out {
                 if let Some(nft_token_id_out) = nft_token_id_out {
-                    assert_ne!(&nft_contract_id_out, &contract_id, "Nft contracts does not equal");
-
                     self.internal_make_offer(
                         &(EscrowEnum::NftToNft {
                             nft_contract_id_in: contract_id.clone(),
@@ -138,6 +142,11 @@ impl EscrowFeature {
 
             env::panic_str(&"Invalid params");
         } else if let Some(offer_id) = offer_id {
+          require!(
+              env::prepaid_gas() > GAS_FOR_RESOLVE_ACCEPT,
+              "More gas is required"
+            );
+
             let owner_id = self.offer_owner_by_account.get(&offer_id).unwrap();
             self.internal_accept_offer_unknown_to_nft(
                 &owner_id,

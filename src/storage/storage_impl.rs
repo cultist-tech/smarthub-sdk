@@ -12,7 +12,7 @@ pub struct StorageFeature {
 }
 
 impl StorageFeature {
-    pub fn new<T, T1>(&mut self, cost: u128, prefix_used: T, prefix_amount: T1) -> Self
+    pub fn new<T, T1>(cost: u128, prefix_used: T, prefix_amount: T1) -> Self
         where T: IntoStorageKey, T1: IntoStorageKey
     {
         Self {
@@ -30,14 +30,6 @@ impl StorageFeature {
             total: U128::from(amount.clone()),
             available: U128::from(amount - used),
         }
-    }
-
-    pub fn internal_current_storage(&self) -> u128 {
-        env::storage_usage() as u128
-    }
-
-    pub fn internal_required_storage(&self, prev_storage: u128) -> u128 {
-        (env::storage_usage() as u128) - prev_storage
     }
 
     pub fn internal_available(&self, account_id: &AccountId) -> u128 {
@@ -65,16 +57,16 @@ impl StorageFeature {
 
         self.used_by_account.insert(&account_id, &next);
     }
+
+    pub fn internal_update_cost_unguarded(&mut self, cost: u128) {
+        self.cost = cost;
+    }
 }
 
 impl StorageCore for StorageFeature {
     // `registration_only` doesn't affect the implementation for vanilla fungible token.
     #[allow(unused_variables)]
-    fn storage_deposit(
-        &mut self,
-        account_id: Option<AccountId>,
-        registration_only: Option<bool>
-    ) -> StorageBalance {
+    fn storage_deposit(&mut self, account_id: Option<AccountId>) -> StorageBalance {
         let amount: Balance = env::attached_deposit();
         let account_id = account_id.unwrap_or_else(env::predecessor_account_id);
 
@@ -110,5 +102,9 @@ impl StorageCore for StorageFeature {
 
     fn storage_balance_of(&self, account_id: AccountId) -> StorageBalance {
         self.internal_balance_of(&account_id)
+    }
+
+    fn storage_cost(&self) -> u128 {
+        self.cost
     }
 }

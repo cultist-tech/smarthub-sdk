@@ -1,5 +1,5 @@
 use crate::metadata::FungibleTokenId;
-use near_sdk::{env, require, AccountId, CryptoHash};
+use near_sdk::{env, require, AccountId, CryptoHash, Promise};
 use rand::prelude::StdRng;
 use rand::SeedableRng;
 use std::convert::TryInto;
@@ -42,4 +42,8 @@ pub fn random_use() -> StdRng {
     let rng: StdRng = SeedableRng::from_seed(seed);
 
     rng
+}
+
+pub fn refund_deposit_to_account(refund: u128) {
+  Promise::new(env::signer_account_id()).transfer(refund);
 }
