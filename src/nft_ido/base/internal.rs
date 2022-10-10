@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::nft_ido::{ NftIdoFeature, TokenId, JsonIdo, ContractIdoId, IdoId };
 use crate::nft_ido::utils::{ random_use, contract_token_id };
 use crate::nft::base::external::{ ext_nft };
-use crate::nft_ido::base::external::{ ext_self };
+use crate::nft_ido::base::resolvers::{ ext_self };
 use crate::nft::base::{GAS_FOR_NFT_TRANSFER_CALL, GAS_FOR_NFT_TRANSFER, GAS_FOR_RESOLVE_NFT_TRANSFER};
 
 #[derive(BorshSerialize, BorshStorageKey)]

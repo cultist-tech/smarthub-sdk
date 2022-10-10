@@ -54,11 +54,6 @@ impl TournamentFactory {
         if let Some(place) = place {
             let tournament = self.assert_tournament_not_started(&id);
             assert_eq!(account_id, &tournament.owner_id, "Owner's method");
-            assert_eq!(
-                nft_contract_id,
-                &tournament.access_nft_contract.expect("Nft access not available"),
-                "Invalid contract"
-            );
 
             self.internal_tournament_add_prize(
                 &id,
