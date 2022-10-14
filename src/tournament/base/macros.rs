@@ -10,7 +10,7 @@ macro_rules! impl_tournament_core {
             #[payable]
             fn tournament_create(
                 &mut self,
-                  tournament_id: TournamentId,
+                  tournament_id: $crate::tournament::TournamentId,
                   players_number: u8,
                   price: Option<U128>,
                   name: String,
@@ -25,18 +25,18 @@ macro_rules! impl_tournament_core {
             #[payable]
             fn tournament_join(
                 &mut self,
-                tournament_id: TournamentId, owner_id: AccountId
+                tournament_id: $crate::tournament::TournamentId, owner_id: AccountId
             ) {
                 $(self.$assert_access();)?
                 self.$tournament.tournament_join(tournament_id, owner_id)
             }
 
-            fn tournament_start(&mut self, tournament_id: TournamentId) {
+            fn tournament_start(&mut self, tournament_id: $crate::tournament::TournamentId) {
              $(self.$assert_access();)?
              self.$tournament.tournament_start(tournament_id)
             }
 
-            fn tournament_end(&mut self, tournament_id: TournamentId) {
+            fn tournament_end(&mut self, tournament_id: $crate::tournament::TournamentId) {
              $(self.$assert_access();)?
              self.$tournament.tournament_end(tournament_id)
             }
@@ -44,7 +44,7 @@ macro_rules! impl_tournament_core {
             #[payable]
             fn tournament_add_prize(
                 &mut self,
-                tournament_id: TournamentId,
+                tournament_id: $crate::tournament::TournamentId,
                 owner_id: AccountId,
                 place_number: u8,
                 prize_id: String,
@@ -55,7 +55,7 @@ macro_rules! impl_tournament_core {
 
             fn tournament_execute_reward(
                 &mut self,
-                tournament_id: TournamentId,
+                tournament_id: $crate::tournament::TournamentId,
                 winner_place: u8,
                 account_id: AccountId,
             ) {
@@ -63,7 +63,7 @@ macro_rules! impl_tournament_core {
                 self.$tournament.tournament_execute_reward(tournament_id, winner_place, account_id)
             }
 
-            fn tournament_add_whitelist_prize_owner(&mut self, tournament_id: TournamentId, account_id: AccountId) {
+            fn tournament_add_whitelist_prize_owner(&mut self, tournament_id: $crate::tournament::TournamentId, account_id: AccountId) {
               $(self.$assert_access();)?
               self.$tournament.tournament_add_whitelist_prize_owner(tournament_id, account_id)
             }
