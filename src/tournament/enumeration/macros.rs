@@ -1,7 +1,7 @@
 /// Tournament enumeration adds the extension standard offering
 /// view-only methods.
 #[macro_export]
-macro_rules! impl_tournament_contract_enumeration {
+macro_rules! impl_tournament_enumeration {
     ($contract:ident, $tournament:ident) => {
         use $crate::tournament::enumeration::TournamentFactoryEnumeration;
         use $crate::tournament::{JsonTournament};

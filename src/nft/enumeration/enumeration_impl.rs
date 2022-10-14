@@ -9,10 +9,9 @@ impl NonFungibleToken {
     /// Helper function used by a enumerations methods
     /// Note: this method is not exposed publicly to end users
     pub fn enum_get_token(&self, owner_id: AccountId, token_id: TokenId) -> Token {
-        let metadata = self.token_metadata_by_id.as_ref().unwrap().get(&token_id);
-        let approved_account_ids = Some(
-            self.approvals_by_id.as_ref().unwrap().get(&token_id).unwrap_or_default()
-        );
+        let metadata = self.token_metadata_by_id.as_ref().and_then(|m| m.get(&token_id));
+        let approved_account_ids = self.approvals_by_id.as_ref().unwrap().get(&token_id);
+
         // custom
         let bind_to_owner = self.bind_to_owner.token_bind_by_id.get(&token_id);
         let royalty = self.royalty.royalty_by_id.get(&token_id);
@@ -57,6 +56,7 @@ impl NonFungibleTokenEnumeration for NonFungibleToken {
         );
         let limit = limit.map(|v| v as usize).unwrap_or(usize::MAX);
         require!(limit != 0, "Cannot provide limit of 0.");
+
         self.owner_by_id
             .iter()
             .skip(start_index as usize)
@@ -108,7 +108,6 @@ impl NonFungibleTokenEnumeration for NonFungibleToken {
             "Out of bounds, please use a smaller from_index."
         );
         token_set
-            .as_vector()
             .iter()
             .skip(start_index as usize)
             .take(limit)

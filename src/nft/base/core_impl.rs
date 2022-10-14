@@ -27,6 +27,8 @@ use near_sdk::{
 use std::collections::HashMap;
 use crate::nft::{
     TokenRarity,
+    //Remove to end Rarity Migration
+    TokenRarityOld,
     TokenCollection,
     TokenType,
     TokenSubType,
@@ -91,8 +93,10 @@ pub struct NonFungibleToken {
   // required by bind_to_owner extension
   pub bind_to_owner: BindToOwnerFeature,
 
-  // TODO experimental
+  // rarity & upgradable extensions
   pub token_rarity_by_id: Option<LookupMap<TokenId, TokenRarity>>,
+
+  // TODO experimental
   pub token_collection_by_id: Option<LookupMap<TokenId, TokenCollection>>,
   pub token_type_by_id: Option<LookupMap<TokenId, TokenType>>,
   pub token_sub_type_by_id: Option<LookupMap<TokenId, TokenSubType>>,
@@ -104,7 +108,8 @@ pub struct NonFungibleToken {
 }
 
 impl NonFungibleToken {
-    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, E3, E4>(
+    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1,
+        E2, E3, E4>(
         owner_by_id_prefix: Q,
         token_metadata_prefix: Option<R>,
         enumeration_prefix: Option<S>,
@@ -164,6 +169,7 @@ impl NonFungibleToken {
             token_reveal_time_by_id: LookupMap::new(reveal_time_prefix),
 
             token_rarity_by_id: token_rarity_prefix.map(LookupMap::new),
+
             token_collection_by_id: token_collection_prefix.map(LookupMap::new),
             token_type_by_id: token_type_prefix.map(LookupMap::new),
             token_sub_type_by_id: token_sub_type_prefix.map(LookupMap::new),

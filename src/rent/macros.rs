@@ -2,7 +2,7 @@
 /// added in addition to this macro.
 #[macro_export]
 macro_rules! impl_rent_core {
-    ($contract:ident, $tokens:ident) => {
+    ($contract:ident, $tokens:ident $(, $assert_action: ident)?) => {
         use $crate::rent::{RentFeatureCore, RentFeatureResolve};
 
         #[near_bindgen]
@@ -12,17 +12,21 @@ macro_rules! impl_rent_core {
             self.$tokens.rent_token_is_locked(contract_id, token_id)
           }
           fn rent_update(&mut self, contract_id: AccountId, token_id: $crate::rent::TokenId, ft_token_id: &AccountId, price_per_hour: near_sdk::json_types::U128, min_time: u64, max_time: u64) {
+            $(self.$assert_action();)?
             self.$tokens.rent_update(contract_id, token_id, ft_token_id, price_per_hour, min_time, max_time)
           }
           fn rent_remove(&mut self, contract_id: AccountId, token_id: $crate::rent::TokenId) {
+            $(self.$assert_action();)?
             self.$tokens.rent_remove(contract_id, token_id)
           }
 
           #[payable]
           fn rent_pay(&mut self, contract_id: AccountId, token_id: $crate::rent::TokenId, time: u64, receiver_id: AccountId) -> near_sdk::Promise {
+            $(self.$assert_action();)?
             self.$tokens.rent_pay(contract_id, token_id, time, receiver_id)
           }
           fn rent_claim(&mut self, contract_id: AccountId, token_id: $crate::rent::TokenId) -> near_sdk::Promise {
+            $(self.$assert_action();)?
             self.$tokens.rent_claim(contract_id, token_id)
           }
           fn rent_is_ended(&self, contract_id: AccountId, token_id: $crate::rent::TokenId) -> bool {

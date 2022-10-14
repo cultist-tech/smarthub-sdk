@@ -2,7 +2,7 @@
 /// view-only methods.
 #[macro_export]
 macro_rules! impl_tournament_nft_access {
-    ($contract:ident, $tournament:ident) => {
+    ($contract:ident, $tournament:ident $(, $assert_access:ident)?) => {
         use $crate::tournament::nft_access::TournamentFactoryNftAccess;
 
         #[near_bindgen]
@@ -12,6 +12,7 @@ macro_rules! impl_tournament_nft_access {
             }
 
             fn tournament_add_nft_access(&mut self, tournament_id: TournamentId, token_ids: Vec<TokenId>) {
+              $(self.$assert_access();)?
               self.$tournament.tournament_add_nft_access(tournament_id, token_ids)
             }
         }

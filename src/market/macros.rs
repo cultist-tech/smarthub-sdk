@@ -104,7 +104,7 @@ macro_rules! impl_market_enumeration {
            self.$tokens.market_supply_by_owner_id(account_id)
           }
 
-          fn market_sales_by_owner_id(&self, account_id: AccountId, from_index: U64, limit: u64) -> Vec<Sale> {
+          fn market_sales_by_owner_id(&self, account_id: AccountId, from_index: U64, limit: u64) -> Vec<mfight_sdk::market::Sale> {
             self.$tokens.market_sales_by_owner_id(account_id, from_index, limit)
           }
 
@@ -112,11 +112,11 @@ macro_rules! impl_market_enumeration {
             self.$tokens.market_supply_by_nft_contract_id(nft_contract_id)
           }
 
-          fn market_sales_by_nft_contract_id(&self, nft_contract_id: AccountId, from_index: U64, limit: u64) -> Vec<Sale> {
+          fn market_sales_by_nft_contract_id(&self, nft_contract_id: AccountId, from_index: U64, limit: u64) -> Vec<mfight_sdk::market::Sale> {
             self.$tokens.market_sales_by_nft_contract_id(nft_contract_id, from_index, limit)
           }
 
-          fn market_sale(&self, contract_id: AccountId, token_id: TokenId) -> Option<Sale> {
+          fn market_sale(&self, contract_id: AccountId, token_id: String) -> Option<mfight_sdk::market::Sale> {
             self.$tokens.market_sale(contract_id, token_id)
           }
         }

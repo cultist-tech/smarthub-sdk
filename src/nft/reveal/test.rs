@@ -2,10 +2,10 @@
 mod tests {
     use crate::nft::reveal::NonFungibleTokenReveal;
     use crate::nft::*;
-    use near_sdk::borsh::{self, BorshSerialize};
+    use near_sdk::borsh::{ self, BorshSerialize };
     use near_sdk::json_types::U128;
-    use near_sdk::test_utils::{accounts, VMContextBuilder};
-    use near_sdk::{env, testing_env, AccountId, Balance, BorshStorageKey};
+    use near_sdk::test_utils::{ accounts, VMContextBuilder };
+    use near_sdk::{ env, testing_env, AccountId, Balance, BorshStorageKey };
 
     const ATTACHED_SUPPLY: Balance = 100_000_000_000_000_000_000_000;
 
@@ -21,21 +21,25 @@ mod tests {
         RevealHiddenMeta,
         RevealTokens,
         RevealTime,
+        // Extra info
+        TokenRarity,
+        TokenCollection,
+        TokenType,
+        TokenSubType,
     }
 
     fn get_context(predecessor_account_id: AccountId) -> VMContextBuilder {
         let mut builder = VMContextBuilder::new();
         builder
-            .current_account_id(accounts(0))
+            .current_account_id(predecessor_account_id.clone())
             .signer_account_id(predecessor_account_id.clone())
             .predecessor_account_id(predecessor_account_id);
         builder
     }
 
-    fn get_instance(owner_id: AccountId) -> NonFungibleToken {
+    fn get_instance() -> NonFungibleToken {
         NonFungibleToken::new(
             StorageKey::OwnerById,
-            owner_id,
             Some(StorageKey::TokenMetadata),
             Some(StorageKey::Enumeration),
             Some(StorageKey::Approval),
@@ -44,6 +48,10 @@ mod tests {
             StorageKey::RevealHiddenMeta,
             StorageKey::RevealTokens,
             StorageKey::RevealTime,
+            Some(StorageKey::TokenRarity),
+            Some(StorageKey::TokenCollection),
+            Some(StorageKey::TokenType),
+            Some(StorageKey::TokenSubType)
         )
     }
 
@@ -54,7 +62,7 @@ mod tests {
         let mut context = get_context(owner_id.clone());
         testing_env!(context.attached_deposit(ATTACHED_SUPPLY).build());
 
-        let mut instance = get_instance(owner_id.clone());
+        let mut instance = get_instance();
 
         let token_id = "Token1".to_string();
         let title = "Token1_title".to_string();
@@ -84,18 +92,29 @@ mod tests {
             None,
             None,
             Some(reveal_time),
+            None,
+            None,
+            None,
+            None
         );
-        assert_eq!(token.token_id, token_id);
+
+        let token_hidden_id = format!("_r{}", token_id.clone());
+        assert_eq!(token.token_id, token_hidden_id);
+
         assert_eq!(token.owner_id, owner_id);
+
+        let token_hidden_title =
+            format!("{} #{}", HIDDEN_TOKEN.to_string(), token_hidden_id.clone());
         assert_eq!(
             token.metadata.unwrap().title,
-            Some(HIDDEN_TOKEN.to_string())
+            Some(token_hidden_title)
         );
+
         assert_eq!(
             instance.token_hidden_metadata.contains(&token_metadata),
             true
         );
-        assert_eq!(instance.tokens_to_reveal.contains(&token_id), true);
+        assert_eq!(instance.tokens_to_reveal.contains(&token_hidden_id), true);
 
         if let Some(time) = instance.token_reveal_time_by_id.get(&token_id) {
             assert_eq!(time, reveal_time);
@@ -110,7 +129,7 @@ mod tests {
         let mut context = get_context(owner_id.clone());
         testing_env!(context.attached_deposit(ATTACHED_SUPPLY).build());
 
-        let mut instance = get_instance(owner_id.clone());
+        let mut instance = get_instance();
 
         let token_id = "Token1".to_string();
         let title = "Token1_title".to_string();
@@ -133,20 +152,26 @@ mod tests {
 
         let reveal_time = env::block_timestamp() + 100;
 
-        let token = instance.nft_mint(
+        instance.nft_mint(
             token_id.clone(),
             None,
             token_metadata.clone(),
             None,
             None,
             Some(reveal_time),
+            None,
+            None,
+            None,
+            None
         );
 
         let mut context = get_context(owner_id.clone());
         context.context.block_timestamp = reveal_time - 50;
-        testing_env!(context.attached_deposit(ATTACHED_SUPPLY).build());
+        testing_env!(context.attached_deposit(1).build());
 
-        instance.nft_reveal(&token_id);
+        let token_hidden_id = format!("_r{}", token_id.clone());
+
+        instance.nft_reveal(token_hidden_id.clone());
     }
 
     #[test]
@@ -156,7 +181,7 @@ mod tests {
         let mut context = get_context(owner_id.clone());
         testing_env!(context.attached_deposit(ATTACHED_SUPPLY).build());
 
-        let mut instance = get_instance(owner_id.clone());
+        let mut instance = get_instance();
 
         let token_id = "Token1".to_string();
         let title = "Token1_title".to_string();
@@ -179,20 +204,26 @@ mod tests {
 
         let reveal_time = env::block_timestamp() + 100;
 
-        let token = instance.nft_mint(
+        instance.nft_mint(
             token_id.clone(),
             None,
             token_metadata.clone(),
             None,
             None,
             Some(reveal_time),
+            None,
+            None,
+            None,
+            None
         );
 
         let mut context = get_context(owner_id.clone());
         context.context.block_timestamp = reveal_time;
-        testing_env!(context.attached_deposit(ATTACHED_SUPPLY).build());
+        testing_env!(context.attached_deposit(1).build());
 
-        instance.nft_reveal(&token_id);
+        let token_hidden_id = format!("_r{}", token_id.clone());
+
+        instance.nft_reveal(token_hidden_id.clone());
 
         if let Some(metadata) = instance.token_metadata_by_id.unwrap().get(&token_id) {
             assert_eq!(metadata, token_metadata);
