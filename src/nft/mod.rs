@@ -33,4 +33,4 @@ pub mod events;
 pub mod reveal;
 pub mod bind_to_owner;
 pub mod royalty;
-//pub mod upgradable;
+pub mod upgradable;

@@ -51,10 +51,10 @@ pub struct Token {
     PartialEq,
     BorshDeserialize,
     BorshSerialize,
-    JsonSchema,
+    JsonSchema
 )]
 #[serde(crate = "near_sdk::serde")]
-pub enum TokenRarityOld {
+pub enum TokenRarity {
     Common,
     Uncommon,
     Rare,
@@ -63,16 +63,6 @@ pub enum TokenRarityOld {
     Legendary,
     Artefact,
 }
-
-impl std::fmt::Display for TokenRarityOld {
-  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{:?}", self)
-    // or, alternatively:
-    // fmt::Debug::fmt(self, f)
-  }
-}
-
-pub type TokenRarity = u8;
 
 #[derive(
     Debug,
