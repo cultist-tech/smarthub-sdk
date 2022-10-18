@@ -15,8 +15,9 @@ pub trait NonFungibleTokenFractionation {
     fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Fractionation;
     fn nft_fractionations(
         &self,
+        contract_id: AccountId,
         from_index: Option<U128>,
         limit: Option<u64>
     ) -> Vec<Fractionation>;
-    fn nft_fractionations_supply(&self) -> U128;
+    fn nft_fractionations_supply(&self, contract_id: AccountId) -> U128;
 }
