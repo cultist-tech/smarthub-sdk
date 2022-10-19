@@ -14,8 +14,6 @@ use crate::nft_fractionation::utils::contract_token_id;
 use crate::nft::base::GAS_FOR_NFT_TRANSFER;
 use crate::nft::base::external::ext_nft;
 
-// const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(30_000_000_000_000);
-
 #[derive(BorshSerialize, BorshStorageKey)]
 pub enum StorageKey {
     FractionationTokensInner {
@@ -73,13 +71,11 @@ impl NftFractionationFeature {
     ) -> Fractionation {
         let id = contract_token_id(&contract_id, &fractionation_id);
         let entries = self.fractionation_by_id.get(&id).expect("Not found fractionation");
-        let completed_at = self.fractionation_completed_by_id.get(&id);
-
+        
         Fractionation {
             contract_id: contract_id.clone(),
             token_id: fractionation_id.clone(),
-            entries: entries.to_vec(),
-            completed_at,
+            entries: entries.to_vec(),            
         }
     }
 
@@ -160,8 +156,7 @@ impl NftFractionationFeature {
         Fractionation {
             contract_id: contract_id.clone(),
             token_id: token_id.clone(),
-            entries: entries.clone(),
-            completed_at: None,
+            entries: entries.clone(),            
         }
     }
 
@@ -180,18 +175,7 @@ impl NftFractionationFeature {
                 token_id.clone(),
                 None,
                 Some("Received by fractionation".to_string())
-            );
-
-        // ext_nft::nft_transfer(
-        //   receiver_id.clone(),
-        //   token_id.clone(),
-        //   None,
-        //   Some("Received by fractionation".to_string()),
-        //
-        //   nft_contract_id.clone(),
-        //   1,
-        //   GAS_FOR_NFT_TRANSFER_CALL,
-        // );
+            );        
     }
 
     pub fn internal_add_token_to_user(
@@ -215,22 +199,7 @@ impl NftFractionationFeature {
         owner_contracts.insert(&contract_id, &tokens);
 
         self.tokens_per_owner.insert(&account_id, &owner_contracts);
-    }
-
-    // pub(crate) fn internal_nft_fractionation_burn(&mut self, fractionation_id: &TokenId) {
-    //   self.assert_owner();
-    //
-    //   let fractionation_by_id = self.fractionation_by_id.as_mut().unwrap();
-    //   let fractionation_token_by_id = self.fractionation_token_by_id.as_mut().unwrap();
-    //   let fractionation = fractionation_by_id.get(&fractionation_id).unwrap();
-    //
-    //   fractionation.iter().for_each(|token_id| {
-    //     fractionation_token_by_id.remove(&token_id.clone());
-    //   });
-    //
-    //   fractionation_token_by_id.remove(&fractionation_id);
-    //   fractionation_by_id.remove(&fractionation_id);
-    // }
+    }    
 
     pub fn internal_on_nft_transfer(
         &mut self,

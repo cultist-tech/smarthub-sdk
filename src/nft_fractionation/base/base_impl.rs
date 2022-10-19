@@ -6,44 +6,38 @@ use crate::nft_fractionation::{ TokenId, FractionationId };
 use crate::nft_fractionation::base::NonFungibleTokenFractionation;
 use crate::nft_fractionation::metadata::{ Fractionation, ContractFractionationId, ContractId };
 use crate::nft_fractionation::events::FractionationComplete;
-use crate::nft_fractionation::utils::{ date_now, contract_token_id };
+use crate::nft_fractionation::utils::contract_token_id;
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct NftFractionationFeature {
     // get fractionation owners
     pub fractionations_owners: LookupMap<ContractFractionationId, AccountId>,
-
     // get fractionation tokens
     pub fractionation_by_id: TreeMap<ContractFractionationId, UnorderedSet<TokenId>>,
     // get fractionations by contract
-    pub fractionations_by_contract: TreeMap<ContractId, UnorderedSet<FractionationId>>,
-    // is fractionation completed
-    pub fractionation_completed_by_id: LookupMap<ContractFractionationId, u64>,
+    pub fractionations_by_contract: TreeMap<ContractId, UnorderedSet<FractionationId>>,    
     // tokens by owner
     pub tokens_per_owner: LookupMap<AccountId, TreeMap<ContractId, UnorderedSet<TokenId>>>,
 }
 
 impl NftFractionationFeature {
-    pub fn new<F1, F2, F3, F4, T1>(
+    pub fn new<F1, F2, F3, T1>(
         fractionations_owners_prefix: F1,
         fractionation_prefix: F2,
-        fractionations_prefix: F3,
-        fractionation_completed_prefix: F4,
+        fractionations_prefix: F3,        
         tokens_per_owner_prefix: T1
     )
         -> Self
         where
             F1: IntoStorageKey,
             F2: IntoStorageKey,
-            F3: IntoStorageKey,
-            F4: IntoStorageKey,
+            F3: IntoStorageKey,            
             T1: IntoStorageKey
     {
         let this = Self {
             fractionations_owners: LookupMap::new(fractionations_owners_prefix),
             fractionation_by_id: TreeMap::new(fractionation_prefix),
-            fractionations_by_contract: TreeMap::new(fractionations_prefix),
-            fractionation_completed_by_id: LookupMap::new(fractionation_completed_prefix),
+            fractionations_by_contract: TreeMap::new(fractionations_prefix),            
             tokens_per_owner: LookupMap::new(tokens_per_owner_prefix),
         };
 
@@ -118,10 +112,7 @@ impl NonFungibleTokenFractionation for NftFractionationFeature {
         self.internal_remove_fractionation(&contract_id, &token_id);
 
         // transfer new token
-        self.internal_call_nft_transfer(&contract_id, &token_id, &signer_id);
-
-        let date = date_now();
-        self.fractionation_completed_by_id.insert(&id, &date);
+        self.internal_call_nft_transfer(&contract_id, &token_id, &signer_id);        
 
         (FractionationComplete {
             contract_id: &contract_id,

@@ -22,8 +22,7 @@ pub type ContractId = AccountId;
 pub struct Fractionation {
     pub token_id: FractionationId,
     pub contract_id: AccountId,
-    pub entries: Vec<TokenId>,
-    pub completed_at: Option<u64>,
+    pub entries: Vec<TokenId>,    
 }
 
 #[derive(Serialize, Deserialize, JsonSchema)]

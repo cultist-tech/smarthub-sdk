@@ -240,8 +240,7 @@ async fn test_fractionation() -> anyhow::Result<()> {
             "contract_id": nft_contract.id(),
             "token_id": token_id_super
         })
-        )?
-        //.deposit(ONE_YOCTO)
+        )?        
         .gas(near_units::parse_gas!("300 T") as u64)
         .transact().await?;
 
