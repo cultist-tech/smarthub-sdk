@@ -10,11 +10,11 @@ macro_rules! impl_non_fungible_token_fractionation {
           fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Fractionation {
             self.$tokens.nft_fractionation(contract_id, token_id)
           }
-          fn nft_fractionations(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Fractionation> {
-            self.$tokens.nft_fractionations(from_index, limit)
+          fn nft_fractionations(&self, contract_id: AccountId, from_index: Option<U128>, limit: Option<u64>) -> Vec<Fractionation> {
+            self.$tokens.nft_fractionations(contract_id, from_index, limit)
           }
-          fn nft_fractionations_supply(&self) -> U128 {
-            self.$tokens.nft_fractionations_supply()
+          fn nft_fractionations_supply(&self, contract_id: AccountId) -> U128 {
+            self.$tokens.nft_fractionations_supply(contract_id)
           }
           fn nft_fractionation_complete(&mut self, contract_id: AccountId, token_id: FractionationId) {
             self.$tokens.nft_fractionation_complete(contract_id, token_id)

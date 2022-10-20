@@ -14,8 +14,6 @@ use crate::nft_fractionation::utils::contract_token_id;
 use crate::nft::base::GAS_FOR_NFT_TRANSFER;
 use crate::nft::base::external::ext_nft;
 
-// const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(30_000_000_000_000);
-
 #[derive(BorshSerialize, BorshStorageKey)]
 pub enum StorageKey {
     FractionationTokensInner {
@@ -26,6 +24,9 @@ pub enum StorageKey {
     },
     FractionationTokensPerContractInner {
         contract_hash: Vec<u8>,
+    },
+    FractionationsPerContractInner {
+        token_hash: Vec<u8>,
     },
 }
 
@@ -63,21 +64,35 @@ impl NftFractionationFeature {
         self.tokens_per_owner.insert(&account_id, &contracts);
     }
 
-    pub fn enum_fractionation(&self, id: &FractionationId) -> Fractionation {
+    pub fn enum_fractionation(
+        &self,
+        contract_id: &AccountId,
+        fractionation_id: &FractionationId
+    ) -> Fractionation {
+        let id = contract_token_id(&contract_id, &fractionation_id);
         let entries = self.fractionation_by_id.get(&id).expect("Not found fractionation");
-        let completed_at = self.fractionation_completed_by_id.get(&id);
-        let contract_id = self.fractionation_contract_by_id.get(&id).unwrap();
-
+        
         Fractionation {
-            contract_id,
-            token_id: id.clone(),
-            entries: entries.to_vec(),
-            completed_at,
+            contract_id: contract_id.clone(),
+            token_id: fractionation_id.clone(),
+            entries: entries.to_vec(),            
         }
     }
 
-    pub fn internal_remove_fractionation(&mut self, token_id: &FractionationId) {
-        self.fractionation_ids.remove(&token_id);
+    pub fn internal_remove_fractionation(
+        &mut self,
+        contract_id: &AccountId,
+        fractionation_id: &FractionationId
+    ) {
+        let mut fractionations = self.fractionations_by_contract.get(&contract_id).unwrap();
+
+        fractionations.remove(&fractionation_id);
+        self.fractionations_by_contract.insert(&contract_id, &fractionations);
+
+        let id = contract_token_id(&contract_id, &fractionation_id);
+
+        self.fractionations_owners.remove(&id);
+        self.fractionation_by_id.remove(&id);
     }
 
     pub fn internal_add_token_to_fractionation(
@@ -93,31 +108,43 @@ impl NftFractionationFeature {
 
         fractionation.insert(&token_id);
         fractionation_by_id.insert(&id, &fractionation);
-
-        self.fractionation_token_by_id.insert(&id, &fractionation_id);
     }
 
     pub fn internal_create_fractionation(
         &mut self,
         contract_id: &AccountId,
         token_id: &FractionationId,
-        entries: &Vec<TokenId>
+        entries: &Vec<TokenId>,
+        owner_id: &AccountId
     ) -> Fractionation {
         let id = contract_token_id(&contract_id, &token_id);
+
         let fractionation_by_id = &mut self.fractionation_by_id;
 
         assert_eq!(fractionation_by_id.contains_key(&id), false, "Fractionation already exists");
+
+        self.fractionations_owners.insert(&id, &owner_id);
 
         let fractionation_tokens = UnorderedSet::new(StorageKey::FractionationTokensInner {
             token_hash: env::sha256(id.as_bytes()),
         });
 
         fractionation_by_id.insert(&id, &fractionation_tokens);
-        self.fractionation_ids.insert(&id);
-        self.fractionation_contract_by_id.insert(&id, &contract_id);
+        let fractionation_id = token_id.clone();
+
+        let mut fractionations = self.fractionations_by_contract
+            .get(&contract_id)
+            .unwrap_or_else(|| {
+                UnorderedSet::new(StorageKey::FractionationsPerContractInner {
+                    token_hash: env::sha256(fractionation_id.as_bytes()),
+                })
+            });
+
+        fractionations.insert(&fractionation_id);
+        self.fractionations_by_contract.insert(&contract_id, &fractionations);
 
         entries.iter().for_each(|token_id| {
-            self.internal_add_token_to_fractionation(&contract_id, &id, &token_id);
+            self.internal_add_token_to_fractionation(&contract_id, &fractionation_id, &token_id);
         });
 
         (FractionationCreate {
@@ -129,8 +156,7 @@ impl NftFractionationFeature {
         Fractionation {
             contract_id: contract_id.clone(),
             token_id: token_id.clone(),
-            entries: entries.clone(),
-            completed_at: None,
+            entries: entries.clone(),            
         }
     }
 
@@ -149,18 +175,7 @@ impl NftFractionationFeature {
                 token_id.clone(),
                 None,
                 Some("Received by fractionation".to_string())
-            );
-
-        // ext_nft::nft_transfer(
-        //   receiver_id.clone(),
-        //   token_id.clone(),
-        //   None,
-        //   Some("Received by fractionation".to_string()),
-        //
-        //   nft_contract_id.clone(),
-        //   1,
-        //   GAS_FOR_NFT_TRANSFER_CALL,
-        // );
+            );        
     }
 
     pub fn internal_add_token_to_user(
@@ -174,7 +189,7 @@ impl NftFractionationFeature {
                 account_hash: env::sha256(account_id.as_bytes()),
             })
         });
-        let mut tokens = owner_contracts.get(&account_id).unwrap_or_else(|| {
+        let mut tokens = owner_contracts.get(&contract_id).unwrap_or_else(|| {
             UnorderedSet::new(StorageKey::FractionationTokensPerContractInner {
                 contract_hash: env::sha256(contract_id.as_bytes()),
             })
@@ -184,22 +199,7 @@ impl NftFractionationFeature {
         owner_contracts.insert(&contract_id, &tokens);
 
         self.tokens_per_owner.insert(&account_id, &owner_contracts);
-    }
-
-    // pub(crate) fn internal_nft_fractionation_burn(&mut self, fractionation_id: &TokenId) {
-    //   self.assert_owner();
-    //
-    //   let fractionation_by_id = self.fractionation_by_id.as_mut().unwrap();
-    //   let fractionation_token_by_id = self.fractionation_token_by_id.as_mut().unwrap();
-    //   let fractionation = fractionation_by_id.get(&fractionation_id).unwrap();
-    //
-    //   fractionation.iter().for_each(|token_id| {
-    //     fractionation_token_by_id.remove(&token_id.clone());
-    //   });
-    //
-    //   fractionation_token_by_id.remove(&fractionation_id);
-    //   fractionation_by_id.remove(&fractionation_id);
-    // }
+    }    
 
     pub fn internal_on_nft_transfer(
         &mut self,
@@ -211,7 +211,12 @@ impl NftFractionationFeature {
         let FractionationNftOnTransferArgs { fractionation_tokens } = args;
 
         if let Some(fractionation_tokens) = fractionation_tokens {
-            self.internal_create_fractionation(&contract_id, &token_id, &fractionation_tokens);
+            self.internal_create_fractionation(
+                &contract_id,
+                &token_id,
+                &fractionation_tokens,
+                &owner_id
+            );
         } else {
             self.internal_add_token_to_user(&contract_id, &token_id, &owner_id);
         }
