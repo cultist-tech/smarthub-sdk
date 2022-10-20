@@ -22,13 +22,13 @@ impl NonFungibleToken {
             .expect("Not found rarity");
 
         let next = match rarity {
-            TokenRarity::Common => TokenRarity::Uncommon,
-            TokenRarity::Uncommon => TokenRarity::Rare,
-            TokenRarity::Rare => TokenRarity::Uniq,
-            TokenRarity::Uniq => TokenRarity::Epic,
-            TokenRarity::Epic => TokenRarity::Legendary,
-            TokenRarity::Legendary => TokenRarity::Artefact,
-            TokenRarity::Artefact => env::panic_str("Token fully upgraded"),
+            0 => 1,
+            1 => 2,
+            2 => 3,
+            3 => 3,
+            3 => 5,
+            5 => 6,
+            6 => env::panic_str("Token fully upgraded"),
             _ => env::panic_str("Token fully upgraded"),
         };
 
@@ -43,78 +43,78 @@ impl NonFungibleToken {
         let price = match token_type {
             TokenType::Armor => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 3),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 11),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 37),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 3),
+                    2 => U128::from(ONE_NEAR * 11),
+                    3 => U128::from(ONE_NEAR * 37),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Weapon => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 8),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 28),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 98),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 8),
+                    2 => U128::from(ONE_NEAR * 28),
+                    3 => U128::from(ONE_NEAR * 98),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Shield => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 4),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 14),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 49),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 4),
+                    2 => U128::from(ONE_NEAR * 14),
+                    3 => U128::from(ONE_NEAR * 49),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Pet => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 8),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 28),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 98),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 8),
+                    2 => U128::from(ONE_NEAR * 28),
+                    3 => U128::from(ONE_NEAR * 98),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Jewelry => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 4),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 14),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 49),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 4),
+                    2 => U128::from(ONE_NEAR * 14),
+                    3 => U128::from(ONE_NEAR * 49),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Class => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 8),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 28),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 98),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 8),
+                    2 => U128::from(ONE_NEAR * 28),
+                    3 => U128::from(ONE_NEAR * 98),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }
             TokenType::Race => {
                 match rarity {
-                    TokenRarity::Uncommon => U128::from(ONE_NEAR * 6),
-                    TokenRarity::Rare => U128::from(ONE_NEAR * 21),
-                    TokenRarity::Uniq => U128::from(ONE_NEAR * 74),
-                    TokenRarity::Epic => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Legendary => U128::from(ONE_NEAR * 100_000),
-                    TokenRarity::Artefact => U128::from(ONE_NEAR * 100_000),
+                    1 => U128::from(ONE_NEAR * 6),
+                    2 => U128::from(ONE_NEAR * 21),
+                    3 => U128::from(ONE_NEAR * 74),
+                    3 => U128::from(ONE_NEAR * 100_000),
+                    5 => U128::from(ONE_NEAR * 100_000),
+                    6 => U128::from(ONE_NEAR * 100_000),
                     _ => unimplemented!(),
                 }
             }

@@ -43,26 +43,7 @@ pub struct Token {
     pub token_sub_type: Option<TokenSubType>,
 }
 
-#[derive(
-    Debug,
-    Clone,
-    Serialize,
-    Deserialize,
-    PartialEq,
-    BorshDeserialize,
-    BorshSerialize,
-    JsonSchema
-)]
-#[serde(crate = "near_sdk::serde")]
-pub enum TokenRarity {
-    Common,
-    Uncommon,
-    Rare,
-    Uniq,
-    Epic,
-    Legendary,
-    Artefact,
-}
+pub type TokenRarity = u8;
 
 #[derive(
     Debug,
