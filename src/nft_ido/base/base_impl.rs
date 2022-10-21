@@ -89,13 +89,13 @@ impl IdoCore for NftIdoFeature {
         let ido = Ido {
             ido_id: ido_id.clone(),
             contract_id: contract_id.clone(),
-            name,
-            amount,
-            price,
-            per_transaction_min,
-            per_transaction_max,
-            buy_max,
-            media,
+            name: name.clone(),
+            amount: amount.clone(),
+            price: price.clone(),
+            per_transaction_min: per_transaction_min.clone(),
+            per_transaction_max: per_transaction_max.clone(),
+            buy_max: buy_max.clone(),
+            media: media.clone(),
         };
         assert!(self.ido_by_id.insert(id.clone(), ido).is_none(), "Ido already exists");
 
@@ -114,7 +114,15 @@ impl IdoCore for NftIdoFeature {
         let json_ido = self.enum_get_ido(&id).unwrap();
 
         (IdoCreate {
-            ido: &ido,
+            ido_id: &ido_id,
+            contract_id: &contract_id,
+            name: &name,
+            amount: &amount,
+            price: &price,
+            per_transaction_min: &per_transaction_min,
+            per_transaction_max: &per_transaction_max,
+            buy_max: &buy_max,
+            media: &media,
         }).emit();
 
         json_ido

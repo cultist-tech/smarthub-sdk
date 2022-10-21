@@ -2,11 +2,21 @@ use crate::event::NearEvent;
 use near_sdk::AccountId;
 use serde::Serialize;
 use crate::nft_ido::{ Ido, IdoId };
+use near_sdk::json_types::{U128};
 
 #[must_use]
 #[derive(Serialize, Debug, Clone)]
 pub struct IdoCreate<'a> {
-    pub ido: &'a Ido,
+    pub ido_id: &'a IdoId,
+    pub contract_id: &'a AccountId,
+
+    pub name: &'a String,
+    pub media: &'a Option<String>,
+    pub amount: &'a u64,
+    pub price: &'a U128,
+    pub buy_max: &'a u64,
+    pub per_transaction_min: &'a u64,
+    pub per_transaction_max: &'a u64,
 }
 
 impl IdoCreate<'_> {
