@@ -48,7 +48,7 @@ async fn mint_token_to_user(
                 "dscription": "Tallest mountain in charted solar system",
                 "copies": 1,
             },
-            "rarity": TokenRarity::Common,
+            "rarity": 0,
             "collection": TokenCollection::Fantasy,
             "token_type": TokenType::Avatar,
         })

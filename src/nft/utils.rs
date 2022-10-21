@@ -1,6 +1,9 @@
 use near_sdk::{ env, AccountId, Balance, CryptoHash, Promise };
 use std::collections::HashMap;
 use std::mem::size_of;
+use crate::nft::TokenType;
+
+const DELIMETER: &str = "||";
 
 // TODO: need a way for end users to determine how much an approval will cost.
 pub fn bytes_for_approved_account_id(account_id: &AccountId) -> u64 {
@@ -29,4 +32,8 @@ pub fn hash_account_id(account_id: &AccountId) -> CryptoHash {
     let mut hash = CryptoHash::default();
     hash.copy_from_slice(&env::sha256(account_id.as_bytes()));
     hash
+}
+
+pub fn entity_id(token_type: &TokenType, rarity: &u8) -> String {
+    format!("{}{}{}", token_type, DELIMETER, rarity)
 }

@@ -26,6 +26,8 @@ mod tests {
         TokenCollection,
         TokenType,
         TokenSubType,
+        
+        EntityUpgrade
     }
 
     fn get_context(predecessor_account_id: AccountId) -> VMContextBuilder {
@@ -51,7 +53,9 @@ mod tests {
             Some(StorageKey::TokenRarity),
             Some(StorageKey::TokenCollection),
             Some(StorageKey::TokenType),
-            Some(StorageKey::TokenSubType)
+            Some(StorageKey::TokenSubType),
+            
+            Some(StorageKey::EntityUpgrade),
         )
     }
 

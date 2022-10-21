@@ -11,6 +11,7 @@ pub use self::mint::NonFungibleTokenMint;
 pub use self::payout::NonFungibleTokenPayout;
 pub use self::reveal::NonFungibleTokenReveal;
 pub use self::royalty::{NonFungibleTokenRoyalty, Payout, Royalty};
+pub use self::upgradable::NonFungibleTokenUpgradable;
 pub use self::token::*;
 
 // ==========
