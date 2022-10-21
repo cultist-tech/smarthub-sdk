@@ -114,7 +114,7 @@ impl IdoCore for NftIdoFeature {
         let json_ido = self.enum_get_ido(&id).unwrap();
 
         (IdoCreate {
-            ido: &json_ido,
+            ido: &ido,
         }).emit();
 
         json_ido
