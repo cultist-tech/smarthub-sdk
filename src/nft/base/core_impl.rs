@@ -102,7 +102,7 @@ pub struct NonFungibleToken {
   pub tokens_to_reveal: UnorderedSet<TokenId>,
   pub token_reveal_time_by_id: LookupMap<TokenId, u64>,
   
-  pub entity_upgrade_price: Option<LookupMap<UpgradeKey, u128>>,
+  pub upgrade_prices: Option<LookupMap<UpgradeKey, u128>>,
 }
 
 impl NonFungibleToken {
@@ -125,7 +125,7 @@ impl NonFungibleToken {
         token_type_prefix: Option<E3>,
         token_sub_type_prefix: Option<E4>,
         
-        entity_upgrade_prefix: Option<U1>,
+        upgrade_prefix: Option<U1>,
     )
         -> Self
         where
@@ -173,7 +173,7 @@ impl NonFungibleToken {
             token_type_by_id: token_type_prefix.map(LookupMap::new),
             token_sub_type_by_id: token_sub_type_prefix.map(LookupMap::new),
             
-            entity_upgrade_price: entity_upgrade_prefix.map(LookupMap::new),
+            upgrade_prices: upgrade_prefix.map(LookupMap::new),
         };
         this.measure_min_token_storage_cost();
         this

@@ -41,7 +41,7 @@ impl NonFungibleToken {
 
         let upgrade_key = next_rarity.to_string();
 
-        let price = self.entity_upgrade_price
+        let price = self.upgrade_prices
             .as_ref()
             .unwrap()
             .get(&upgrade_key)
@@ -53,7 +53,7 @@ impl NonFungibleToken {
     pub fn internal_set_upgrade_price(&mut self, rarity: &TokenRarity, price: &u128) {
         let upgrade_key = rarity.to_string();
 
-        self.entity_upgrade_price.as_mut().unwrap().insert(&upgrade_key, &price);
+        self.upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
     }
 }
 
