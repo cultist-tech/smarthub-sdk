@@ -9,8 +9,8 @@ use schemars::JsonSchema;
 /// Note that token IDs for NFTs are strings on NEAR. It's still fine to use autoincrementing numbers as unique IDs if desired, but they should be stringified. This is to make IDs more future-proof as chain-agnostic conventions and standards arise, and allows for more flexibility with considerations like bridging NFTs across chains, etc.
 pub type TokenId = String;
 
-// EntityId type that corresponds token upgrate type/subtype/rarity entity
-pub type EntityId = String;
+// Corresponds for token upgrate
+pub type UpgradeKey = String;
 
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(

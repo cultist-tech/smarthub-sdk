@@ -4,7 +4,7 @@ use workspaces::result::CallExecutionDetails;
 
 use serde_json::json;
 use near_sdk::json_types::U128;
-use mfight_sdk::nft:: { TokenRarity, TokenType };
+use mfight_sdk::nft::TokenRarity;
 
 const NFT_WASM_FILEPATH: &str = "./out/nft/nft.wasm";
 
@@ -31,8 +31,7 @@ async fn mint_token_to_user(
     nft_contract: &Contract,
     token: &String,
     user: &Account,
-    rarity: &TokenRarity,
-    token_type: &TokenType,
+    rarity: &TokenRarity,   
 ) -> anyhow::Result<CallExecutionDetails> {
     let nft_outcome = nft_contract
         .call(&worker, "nft_mint")
@@ -45,8 +44,7 @@ async fn mint_token_to_user(
                 "dscription": "Tallest mountain in charted solar system",
                 "copies": 1,
             },
-            "rarity": rarity,
-            "token_type": token_type,
+            "rarity": rarity,            
         })
         )?
         .gas(near_units::parse_gas!("300 T") as u64)
@@ -70,33 +68,43 @@ async fn test_upgradable() -> anyhow::Result<()> {
     let res = create_nft_contract(&worker, &nft_contract).await?;
     println!("NFT create new_default_meta outcome: {:#?}", res);
 
-    let token_id = "nft".to_string();
-    let weapon_type = TokenType::Weapon;
+    let token_id = "nft".to_string();    
     let rarity_1 = 1;
 
-    //Mint nft1 token to Alice
-    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0, &weapon_type).await?;
-    println!("Nft_mint NFT1 to Alice outcome: {:#?}", res);
+    //Mint nft token to Alice
+    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0).await?;
+    println!("Nft_mint NFT to Alice outcome: {:#?}", res);
     
-    let weapon_type_price_rarity1 = ONE_NEAR * 8;
+    let price_rarity1 = ONE_NEAR * 8;
     
-    //Transfer token to fractionation contract to create fractionation
+    //Set upgrade price
     let res = nft_contract
-        .call(&worker, "nft_upgrade_price")
+        .call(&worker, "nft_set_upgrade_price")
         .args_json(
-            json!({
-            "token_type": weapon_type,
+            json!({            
             "rarity": rarity_1,
-            "price": U128(weapon_type_price_rarity1)
+            "price": U128(price_rarity1)
         })
         )?        
         .gas(near_units::parse_gas!("300 T") as u64)
         .transact().await?;
 
-    println!("Nft_upgrade_price weaponTypePrice_rarity1 outcome: {:#?}", res);
+    println!("Nft_set_upgrade_price price_rarity1 outcome: {:#?}", res);
     assert!(res.is_success());
     
-    //Transfer token to fractionation contract to create fractionation
+    //View upgrade price
+    let res: U128 = alice
+        .call(&worker, nft_contract.id(), "nft_upgrade_price")
+        .args_json(json!({
+            "token_id": token_id,    
+        }))?
+         .view().await?
+         .json()?;
+
+    println!("Nft_upgrade_price outcome: {:#?}", res);
+    assert_eq!(res, U128(price_rarity1));
+    
+    //Upgrade nft
     let res = alice
         .call(&worker, nft_contract.id(), "nft_upgrade")
         .args_json(
@@ -104,7 +112,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
             "token_id": token_id,            
         })
         )?
-        .deposit(weapon_type_price_rarity1)
+        .deposit(price_rarity1)
         .gas(near_units::parse_gas!("300 T") as u64)
         .transact().await?;
 
