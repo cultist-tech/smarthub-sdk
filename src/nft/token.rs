@@ -9,9 +9,6 @@ use schemars::JsonSchema;
 /// Note that token IDs for NFTs are strings on NEAR. It's still fine to use autoincrementing numbers as unique IDs if desired, but they should be stringified. This is to make IDs more future-proof as chain-agnostic conventions and standards arise, and allows for more flexibility with considerations like bridging NFTs across chains, etc.
 pub type TokenId = String;
 
-// Corresponds for token upgrate
-pub type UpgradeKey = String;
-
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(
     BorshDeserialize,
@@ -99,15 +96,6 @@ pub enum TokenType {
     Access,
     Present,
 }
-
-impl std::fmt::Display for TokenType {
-  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{:?}", self)
-    // or, alternatively:
-    // fmt::Debug::fmt(self, f)
-  }
-}
-
 
 #[derive(
     Debug,

@@ -2,8 +2,8 @@ use super::resolver::NonFungibleTokenResolver;
 use crate::nft::bind_to_owner::BindToOwnerFeature;
 use crate::nft::base::receiver::ext_receiver;
 use crate::nft::base::NonFungibleTokenCore;
-use crate::nft::metadata::TokenMetadata;
-use crate::nft::token::{ Token, TokenId, UpgradeKey };
+use crate::nft::metadata::{ TokenMetadata, UpgradeKey, UpgradePrice };
+use crate::nft::token::{ Token, TokenId };
 use crate::nft::utils::{ hash_account_id, refund_approved_account_ids };
 use crate::nft::royalty::RoyaltyFeature;
 use near_sdk::borsh::{ self, BorshDeserialize, BorshSerialize };
@@ -102,7 +102,7 @@ pub struct NonFungibleToken {
   pub tokens_to_reveal: UnorderedSet<TokenId>,
   pub token_reveal_time_by_id: LookupMap<TokenId, u64>,
   
-  pub upgrade_prices: Option<LookupMap<UpgradeKey, u128>>,
+  pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,
 }
 
 impl NonFungibleToken {
