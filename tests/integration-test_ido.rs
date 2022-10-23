@@ -52,7 +52,7 @@ async fn test_nft_ido() -> anyhow::Result<()> {
                 "dscription": "Tallest mountain in charted solar system",
                 "copies": 1,
             },
-            "rarity": TokenRarity::Common,
+            "rarity": 0,
             "collection": TokenCollection::Fantasy,
             "token_type": TokenType::Avatar,
         })

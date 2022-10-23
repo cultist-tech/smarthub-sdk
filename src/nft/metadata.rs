@@ -1,8 +1,10 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::json_types::Base64VecU8;
-use near_sdk::require;
+use near_sdk::{ AccountId, require };
 use near_sdk::serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+
+use crate::nft::TokenId;
 
 /// This spec can be treated like a version of the standard.
 pub const NFT_METADATA_SPEC: &str = "nft-1.0.0";
@@ -78,4 +80,29 @@ impl TokenMetadata {
             );
         }
     }
+}
+
+// Corresponds for token upgrate
+pub type UpgradeKey = String;
+
+#[derive(
+    BorshDeserialize,
+    BorshSerialize,
+    Serialize,
+    Deserialize,
+    Clone,
+    Debug,
+    PartialEq,
+    JsonSchema
+)]
+#[serde(crate = "near_sdk::serde")]
+pub struct UpgradePrice {
+    pub ft_token_id: AccountId,
+    pub price: u128,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(crate = "near_sdk::serde")]
+pub struct UpdateOnFtTransferArgs {
+    pub token_id: TokenId,
 }

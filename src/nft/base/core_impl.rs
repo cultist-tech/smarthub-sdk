@@ -2,7 +2,7 @@ use super::resolver::NonFungibleTokenResolver;
 use crate::nft::bind_to_owner::BindToOwnerFeature;
 use crate::nft::base::receiver::ext_receiver;
 use crate::nft::base::NonFungibleTokenCore;
-use crate::nft::metadata::TokenMetadata;
+use crate::nft::metadata::{ TokenMetadata, UpgradeKey, UpgradePrice };
 use crate::nft::token::{ Token, TokenId };
 use crate::nft::utils::{ hash_account_id, refund_approved_account_ids };
 use crate::nft::royalty::RoyaltyFeature;
@@ -101,10 +101,12 @@ pub struct NonFungibleToken {
   pub token_hidden_metadata: UnorderedSet<TokenMetadata>,
   pub tokens_to_reveal: UnorderedSet<TokenId>,
   pub token_reveal_time_by_id: LookupMap<TokenId, u64>,
+  
+  pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,
 }
 
 impl NonFungibleToken {
-    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, E3, E4>(
+    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, E3, E4, U1>(
         owner_by_id_prefix: Q,
         token_metadata_prefix: Option<R>,
         enumeration_prefix: Option<S>,
@@ -121,7 +123,9 @@ impl NonFungibleToken {
         token_rarity_prefix: Option<E1>,
         token_collection_prefix: Option<E2>,
         token_type_prefix: Option<E3>,
-        token_sub_type_prefix: Option<E4>
+        token_sub_type_prefix: Option<E4>,
+        
+        upgrade_prefix: Option<U1>,
     )
         -> Self
         where
@@ -137,7 +141,8 @@ impl NonFungibleToken {
             E1: IntoStorageKey,
             E2: IntoStorageKey,
             E3: IntoStorageKey,
-            E4: IntoStorageKey
+            E4: IntoStorageKey,
+            U1: IntoStorageKey
     {
         let (approvals_by_id, next_approval_id_by_id) = if let Some(prefix) = approval_prefix {
             let prefix: Vec<u8> = prefix.into_storage_key();
@@ -167,6 +172,8 @@ impl NonFungibleToken {
             token_collection_by_id: token_collection_prefix.map(LookupMap::new),
             token_type_by_id: token_type_prefix.map(LookupMap::new),
             token_sub_type_by_id: token_sub_type_prefix.map(LookupMap::new),
+            
+            upgrade_prices: upgrade_prefix.map(LookupMap::new),
         };
         this.measure_min_token_storage_cost();
         this
