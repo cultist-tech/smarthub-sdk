@@ -1,7 +1,7 @@
 use crate::event::NearEvent;
 use near_sdk::AccountId;
 use serde::Serialize;
-use crate::nft_ido::{ Ido, IdoId };
+use crate::nft_ido::{ Ido, IdoId, TokenId };
 use near_sdk::json_types::{U128};
 
 #[must_use]
@@ -88,6 +88,46 @@ impl IdoPause<'_> {
     }
 }
 
+#[must_use]
+#[derive(Serialize, Debug, Clone)]
+pub struct IdoAddToken<'a> {
+    pub ido_id: &'a IdoId,
+    pub contract_id: &'a AccountId,
+
+    pub token_id: &'a TokenId,
+}
+
+impl IdoAddToken<'_> {
+    pub fn emit(self) {
+        Self::emit_many(&[self])
+    }
+
+    pub fn emit_many(data: &[IdoAddToken<'_>]) {
+        new_mf_nft_ido_v1(MfNftIdoEventKind::IdoAddToken(data)).emit()
+    }
+}
+
+
+#[must_use]
+#[derive(Serialize, Debug, Clone)]
+pub struct IdoBuyToken<'a> {
+    pub ido_id: &'a IdoId,
+    pub contract_id: &'a AccountId,
+
+    pub token_id: &'a TokenId,
+    pub receiver_id: &'a AccountId,
+}
+
+impl IdoBuyToken<'_> {
+    pub fn emit(self) {
+        Self::emit_many(&[self])
+    }
+
+    pub fn emit_many(data: &[IdoBuyToken<'_>]) {
+        new_mf_nft_ido_v1(MfNftIdoEventKind::IdoBuyToken(data)).emit()
+    }
+}
+
 // #
 
 #[derive(Serialize, Debug)]
@@ -106,6 +146,8 @@ enum MfNftIdoEventKind<'a> {
     IdoStart(&'a [IdoStart<'a>]),
     IdoUpdate(&'a [IdoUpdate<'a>]),
     IdoPause(&'a [IdoPause<'a>]),
+    IdoAddToken(&'a [IdoAddToken<'a>]),
+    IdoBuyToken(&'a [IdoBuyToken<'a>]),
 }
 
 fn new_mf_nft_ido<'a>(version: &'static str, event_kind: MfNftIdoEventKind<'a>) -> NearEvent<'a> {

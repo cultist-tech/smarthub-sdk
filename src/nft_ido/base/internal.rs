@@ -4,6 +4,7 @@ use near_sdk::borsh::{ self, BorshSerialize };
 use rand::Rng;
 use crate::nft_ido::{ NftIdoFeature, TokenId, JsonIdo, ContractIdoId, IdoId };
 use crate::nft_ido::utils::{ random_use, contract_token_id };
+use crate::nft_ido::events::IdoBuyToken;
 use crate::nft::base::external::{ ext_nft };
 use crate::nft_ido::base::resolvers::{ ext_self };
 use crate::nft::base::{GAS_FOR_NFT_TRANSFER_CALL, GAS_FOR_NFT_TRANSFER, GAS_FOR_RESOLVE_NFT_TRANSFER};
@@ -257,6 +258,13 @@ impl NftIdoFeature {
                 &receiver_id,
                 &ido_id
             );
+            
+            (IdoBuyToken {
+                ido_id: &ido_id,
+                contract_id: &contract_id,
+                token_id: &token_id,
+                receiver_id: &receiver_id,                
+            }).emit();
         });
 
         let next_minted = u64::from(owner_minted + _amount);
