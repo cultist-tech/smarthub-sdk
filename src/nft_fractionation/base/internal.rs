@@ -9,7 +9,7 @@ use crate::nft_fractionation::{
     ContractId,
 };
 use crate::nft_fractionation::metadata::Fractionation;
-use crate::nft_fractionation::events::{ FractionationCreate };
+use crate::nft_fractionation::events::{ FractionationCreate, FractionationProcess };
 use crate::nft_fractionation::utils::contract_token_id;
 use crate::nft::base::GAS_FOR_NFT_TRANSFER;
 use crate::nft::base::external::ext_nft;
@@ -219,6 +219,12 @@ impl NftFractionationFeature {
             );
         } else {
             self.internal_add_token_to_user(&contract_id, &token_id, &owner_id);
+            
+            (FractionationProcess {
+                token_id: &token_id,
+                contract_id: &contract_id,                
+                account_id: &owner_id,
+            }).emit();
         }
     }
 }

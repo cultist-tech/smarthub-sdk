@@ -41,6 +41,24 @@ impl FractionationComplete<'_> {
     }
 }
 
+#[must_use]
+#[derive(Serialize, Debug, Clone)]
+pub struct FractionationProcess<'a> {    
+    pub token_id: &'a TokenId,
+    pub contract_id: &'a AccountId,
+    pub account_id: &'a AccountId,
+}
+
+impl FractionationProcess<'_> {
+    pub fn emit(self) {
+        Self::emit_many(&[self])
+    }
+
+    pub fn emit_many(data: &[FractionationProcess<'_>]) {
+        new_mf_fract_v1(MfFractEventKind::FractionationProcess(data)).emit()
+    }
+}
+
 #[derive(Serialize, Debug)]
 pub(crate) struct MfFractEvent<'a> {
     version: &'static str,
@@ -55,6 +73,7 @@ pub(crate) struct MfFractEvent<'a> {
 enum MfFractEventKind<'a> {
     FractionationCreate(&'a [FractionationCreate<'a>]),
     FractionationComplete(&'a [FractionationComplete<'a>]),
+    FractionationProcess(&'a[FractionationProcess<'a>]),
 }
 
 fn new_mf_fract<'a>(version: &'static str, event_kind: MfFractEventKind<'a>) -> NearEvent<'a> {
