@@ -115,6 +115,8 @@ pub struct IdoBuyToken<'a> {
     pub contract_id: &'a AccountId,
 
     pub token_id: &'a TokenId,
+    pub price:&'a U128,
+    pub ft_token_id: &'a AccountId,
     pub receiver_id: &'a AccountId,
 }
 
