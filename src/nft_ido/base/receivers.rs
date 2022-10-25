@@ -1,6 +1,7 @@
 use crate::nft_ido::{ NftIdoFeature, NftIdoOnFtTransferArgs, NftIdoOnNftTransferArgs, TokenId };
 use near_sdk::{ env, AccountId, PromiseOrValue };
 use crate::nft_ido::utils::contract_token_id;
+use crate::nft_ido::events::IdoAddToken;
 use near_sdk::json_types::U128;
 
 impl NftIdoFeature {
@@ -45,6 +46,12 @@ impl NftIdoFeature {
         let NftIdoOnNftTransferArgs { ido_id } = args;
 
         self.internal_ido_add_token(&contract_id, &ido_id, &token_id);
+        
+        (IdoAddToken {
+            ido_id: &ido_id,
+            contract_id: &contract_id,
+            token_id: &token_id,
+        }).emit();
 
         PromiseOrValue::Value(false)
     }

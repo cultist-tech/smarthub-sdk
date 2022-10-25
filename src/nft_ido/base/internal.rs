@@ -4,9 +4,11 @@ use near_sdk::borsh::{ self, BorshSerialize };
 use rand::Rng;
 use crate::nft_ido::{ NftIdoFeature, TokenId, JsonIdo, ContractIdoId, IdoId };
 use crate::nft_ido::utils::{ random_use, contract_token_id };
+use crate::nft_ido::events::IdoBuyToken;
 use crate::nft::base::external::{ ext_nft };
 use crate::nft_ido::base::resolvers::{ ext_self };
 use crate::nft::base::{GAS_FOR_NFT_TRANSFER_CALL, GAS_FOR_NFT_TRANSFER, GAS_FOR_RESOLVE_NFT_TRANSFER};
+use crate::utils::near_ft;
 
 #[derive(BorshSerialize, BorshStorageKey)]
 pub enum StorageKey {
@@ -233,6 +235,7 @@ impl NftIdoFeature {
         self.assert_ido_started(&contract_id, &ido_id);
 
         let ido = self.ido_by_id.get(&id).expect("Not found ido");
+        let price = ido.price;
         let buy_max = ido.buy_max;
         let per_transaction_min = ido.per_transaction_min;
         let per_transaction_max = ido.per_transaction_max;
@@ -246,6 +249,12 @@ impl NftIdoFeature {
         assert!(owner_minted + _amount <= buy_max, "Mint limit");
         assert!(_amount <= per_transaction_max, "Invalid mint max amount");
         assert!(_amount >= per_transaction_min, "Invalid mint min amount");
+        
+        let ft_token_id = if let Some(ft_token) = self.ido_by_ft_token.get(&id){
+            ft_token
+        } else {
+            near_ft()
+        };
 
         let tokens = self.internal_random_tokens(&contract_id, &ido_id, &_amount);
 
@@ -257,6 +266,15 @@ impl NftIdoFeature {
                 &receiver_id,
                 &ido_id
             );
+            
+            (IdoBuyToken {
+                ido_id: &ido_id,
+                contract_id: &contract_id,
+                token_id: &token_id,
+                price: &price,
+                ft_token_id: &ft_token_id,
+                receiver_id: &receiver_id,                
+            }).emit();
         });
 
         let next_minted = u64::from(owner_minted + _amount);
