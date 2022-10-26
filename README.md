@@ -40,7 +40,7 @@ NFT standard with new functionality (nep-171)
 Upgrade an NFT by transferring a certain amount of FT or NEAR. Each NFT will have a pumping threshold, above which you can no longer pump. The price for each level is specified by the developers with the necessary functionality. This will allow the games to implement the functionality to improve any items, as well as increase the use of their FT.
 
 <b>NFT Reveal</b>:                                                 
-Immediately after mint users get NFT with the same medi (hiding metadata fields) and there will be 2 options to open it:
+Immediately after mint users get NFT with the same media (hiding metadata fields) and there will be 2 options to open it:
 1. The user himself can open his NFT, thanks to this mechanics it is possible to implement the mechanics of "boxes", like on Binance
 2. The timing of disclosure is set by the creator, and, for example, disclosure occurs 24 hours after the full sale of the NFT collection, which allows you to expand the number of options for interacting with the community, thus heating up interest
 
