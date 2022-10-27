@@ -1,5 +1,5 @@
 use crate::nft::metadata::TokenMetadata;
-use crate::nft::{Token, TokenId, TokenRarity, TokenCollection, TokenType, TokenSubType};
+use crate::nft::{Token, TokenId, TokenRarity/*, TokenCollection, TokenType, TokenSubType*/};
 use crate::nft::royalty::Royalty;
 pub use mint_impl::*;
 use near_sdk::AccountId;
@@ -19,8 +19,8 @@ pub trait NonFungibleTokenMint {
         reveal_at: Option<u64>,
 
         rarity: Option<TokenRarity>,
-        collection: Option<TokenCollection>,
-        token_type: Option<TokenType>,
-        token_sub_type: Option<TokenSubType>,
+        collection: Option<String>,
+        token_type: Option<String>,
+        token_sub_type: Option<String>,
     ) -> Token;
 }

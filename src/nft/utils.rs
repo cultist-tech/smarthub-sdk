@@ -1,7 +1,7 @@
 use near_sdk::{ env, AccountId, Balance, CryptoHash, Promise };
 use std::collections::HashMap;
 use std::mem::size_of;
-use crate::nft::TokenType;
+//use crate::nft::TokenType;
 
 // TODO: need a way for end users to determine how much an approval will cost.
 pub fn bytes_for_approved_account_id(account_id: &AccountId) -> u64 {
