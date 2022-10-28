@@ -1,5 +1,5 @@
 use crate::nft::metadata::TokenMetadata;
-use crate::nft::{Token, TokenId, TokenRarity/*, TokenCollection, TokenType, TokenSubType*/};
+use crate::nft::{Token, TokenId, TokenRarity };
 use crate::nft::royalty::Royalty;
 pub use mint_impl::*;
 use near_sdk::AccountId;

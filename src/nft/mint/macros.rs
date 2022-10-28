@@ -18,9 +18,9 @@ macro_rules! impl_non_fungible_token_mint {
                 reveal_at: Option<u64>,
 
                 rarity: Option<mfight_sdk::nft::TokenRarity>,
-                collection: Option<mfight_sdk::nft::TokenCollection>,
-                token_type: Option<mfight_sdk::nft::TokenType>,
-                token_sub_type: Option<mfight_sdk::nft::TokenSubType>,
+                collection: Option<std::string::String>,
+                token_type: Option<std::string::String>,
+                token_sub_type: Option<std::string::String>,
             ) -> mfight_sdk::nft::Token {
                 self.$assert_owner();
 
@@ -32,10 +32,10 @@ macro_rules! impl_non_fungible_token_mint {
                     perpetual_royalties,
                     reveal_at,
 
-                     rarity,
-              collection,
-              token_type,
-              token_sub_type,
+                    rarity,
+                    collection,
+                    token_type,
+                    token_sub_type,
                 )
             }
         }

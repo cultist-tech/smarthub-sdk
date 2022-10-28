@@ -19,10 +19,8 @@ impl NonFungibleToken {
         let reveal_at = self.token_reveal_time_by_id.get(&token_id);
 
         let rarity = self.token_rarity_by_id.as_ref().unwrap().get(&token_id);
-//         let collection = self.token_collection_by_id.as_ref().unwrap().get(&token_id);
-//         let token_type = self.token_type_by_id.as_ref().unwrap().get(&token_id);
-//         let token_sub_type = self.token_sub_type_by_id.as_ref().unwrap().get(&token_id);
-        let token_type = self.token_type_by_id.as_ref().unwrap().get(&token_id);
+
+        let token_types = self.token_types_by_id.as_ref().unwrap().get(&token_id);
 
         Token {
             token_id,
@@ -33,9 +31,7 @@ impl NonFungibleToken {
             bind_to_owner,
             reveal_at,
 
-//             collection,
-            token_type,
-//             token_sub_type,
+            token_types,
             rarity,
         }
     }

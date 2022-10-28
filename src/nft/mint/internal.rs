@@ -7,9 +7,7 @@ use crate::nft::{
     Token,
     TokenId,
     TokenRarity,
-//     TokenCollection,
-     TokenType,
-//     TokenSubType,
+    TokenTypes,
 };
 use crate::nft::royalty::Royalty;
 use near_sdk::collections::UnorderedSet;
@@ -169,7 +167,7 @@ impl NonFungibleToken {
             self.token_rarity_by_id.as_mut().unwrap().insert(&token_id, &rarity);
         }
         
-        let mut token_type_map: TokenType = HashMap::new();
+        let mut token_type_map: TokenTypes = HashMap::new();
         //token_type.insert(near_ft(),PRICE);
         if let Some(collection) = &collection {
             token_type_map.insert("collection".to_string(), collection.clone());
@@ -179,20 +177,10 @@ impl NonFungibleToken {
         }
         if let Some(token_sub_type) = &token_sub_type {
             token_type_map.insert("token_sub_type".to_string(), token_sub_type.clone());
-        }
-        
-        /*
-        if let Some(collection) = &collection {
-            self.token_collection_by_id.as_mut().unwrap().insert(&token_id, &collection);
-        }
-        if let Some(token_type) = &token_type {
-            self.token_type_by_id.as_mut().unwrap().insert(&token_id, &token_type);
-        }
-        if let Some(token_sub_type) = &token_sub_type {
-            self.token_sub_type_by_id.as_mut().unwrap().insert(&token_id, &token_sub_type);
-        }*/
+        }        
+       
         if token_type_map.len()>0 {
-            self.token_type_by_id.as_mut().unwrap().insert(&token_id, &token_type_map);            
+            self.token_types_by_id.as_mut().unwrap().insert(&token_id, &token_type_map);            
         }
         
         let type_option = if token_type_map.len()>0 {
@@ -216,11 +204,7 @@ impl NonFungibleToken {
             reveal_at,
 
             rarity: rarity.clone(),
-            token_type: type_option,
-//             token_sub_type: token_sub_type.clone(),
-//             token_type: token_type.clone(),
-//             collection: collection.clone(),
-
+            token_types: type_option,
         };
 
         (NftCreate { token: &token }).emit();
