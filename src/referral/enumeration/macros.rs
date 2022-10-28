@@ -8,11 +8,11 @@ macro_rules! impl_referral_enumeration {
         #[near_bindgen]
         impl ReferralEnumeration for $contract {
           // get referrals by contract
-          fn referrals_by_contract(&self, contract_id: AccountId) -> Vec<AccountId> {
+          fn referrals_by_contract(&self, contract_id: $crate::referral::ContractId) -> Vec<AccountId> {
             self.$tokens.referrals_by_contract(contract_id)
           }
           // get count of referrals by contract
-          fn referrals_supply_by_contract(&self, contract_id: AccountId) -> u128 {
+          fn referrals_supply_by_contract(&self, contract_id: $crate::referral::ContractId) -> u128 {
            self.$tokens.referrals_supply_by_contract(contract_id)
           }
 
@@ -35,20 +35,20 @@ macro_rules! impl_referral_enumeration {
           }
 
           // get contracts by influencer
-          fn referral_contracts_by_influencer(&self, influencer_id: InfluencerId) -> Vec<ContractId> {
+          fn referral_contracts_by_influencer(&self, influencer_id: $crate::referral::InfluencerId) -> Vec<$crate::referral::ContractId> {
             self.$tokens.referral_contracts_by_influencer(influencer_id)
           }
           // get programs by influencer
-          fn referral_programs_by_influencer(&self, influencer_id: InfluencerId, contract_id: ContractId) -> Vec<ProgramId> {
+          fn referral_programs_by_influencer(&self, influencer_id: $crate::referral::InfluencerId, contract_id: $crate::referral::ContractId) -> Vec<$crate::referral::ProgramId> {
             self.$tokens.referral_programs_by_influencer(influencer_id, contract_id)
           }
 
           // get influencers by contract
-          fn referral_influencers_by_contract(&self, contract_id: ContractId) -> Vec<InfluencerId> {
+          fn referral_influencers_by_contract(&self, contract_id: $crate::referral::ContractId) -> Vec<$crate::referral::InfluencerId> {
             self.$tokens.referral_influencers_by_contract(contract_id)
           }
           // get programs by contract
-          fn referral_programs_by_contract(&self, contract_id: InfluencerId, influencer_id: InfluencerId) -> Vec<ProgramId> {
+          fn referral_programs_by_contract(&self, contract_id: $crate::referral::ContractId, influencer_id: $crate::referral::InfluencerId) -> Vec<$crate::referral::ProgramId> {
             self.$tokens.referral_programs_by_contract(contract_id, influencer_id)
           }
         }

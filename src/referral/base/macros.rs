@@ -12,7 +12,7 @@ macro_rules! impl_referral_core {
             self.$tokens.referral_by(contract_id, account_id)
           }
 
-          fn referral_program_code(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<String> {
+          fn referral_program_code(&self, contract_id: $crate::referral::ContractId, influencer_id: $crate::referral::InfluencerId, program_id: $crate::referral::ProgramId) -> Option<String> {
             self.$tokens.referral_program_code(contract_id, influencer_id, program_id)
           }
 

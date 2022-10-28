@@ -11,6 +11,7 @@ use crate::referral::utils::{
 };
 use crate::utils::refund_deposit_to_account;
 use crate::storage::Storage;
+use crate::referral::events::{ReferralAccept, ProgramCreate};
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
@@ -104,6 +105,14 @@ impl ReferralFeature {
             })
         );
 
+        ProgramCreate {
+            contract_id: &contract_id,
+            influencer_id: &influencer_id,
+            program_id: &program_id,
+            royalty_percent: &royalty,
+            code: &code
+        }.emit();
+
         storage.refund(&attached_deposit);
     }
 
@@ -118,6 +127,13 @@ impl ReferralFeature {
 
         let contract_account = contract_account_id(&contract_id, &account_id);
         assert!(self.influencer_by_id.get(&contract_account).is_none(), "Referral already exists");
+
+        ReferralAccept {
+            contract_id: &contract_id,
+            influencer_id: &influencer_id,
+            program_id: &program_id,
+            account_id: &account_id,
+        }.emit();
 
         self.internal_call_on_referral(&contract_id, &influencer_id, &program_id, &account_id);
     }

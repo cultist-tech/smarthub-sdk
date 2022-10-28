@@ -16,6 +16,7 @@ pub(crate) enum NearEvent<'a> {
     MfEscrow(crate::escrow::events::MfEscrowEvent<'a>),
     NftFractionation(crate::nft_fractionation::events::MfFractEvent<'a>),
     MfTournament(crate::tournament::events::EventLog<'a>),
+    CultReferral(crate::referral::events::CultReferralEvent<'a>),
 }
 
 impl<'a> NearEvent<'a> {
