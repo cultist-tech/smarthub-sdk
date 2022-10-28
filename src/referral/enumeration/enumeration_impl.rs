@@ -59,7 +59,7 @@ impl ReferralEnumeration for ReferralFeature {
     }
 
     fn referrals_supply_by_influencer(&self, influencer_id: InfluencerId) -> u128 {
-        if let Some(referrals) = self.referrals_by_contract.get(&influencer_id) {
+        if let Some(referrals) = self.referrals_by_influencer.get(&influencer_id) {
             referrals.len() as u128
         } else {
             0

@@ -19,13 +19,12 @@ macro_rules! impl_referral_core {
            #[payable]
           fn referral_create_program(
               &mut self,
-              contract_id: AccountId,
               influencer_id: AccountId,
               program_id: $crate::referral::ProgramId,
               royalty_percent: u64
           ) {
             self.$assert_access();
-            self.$tokens.referral_create_program(contract_id, influencer_id, program_id, royalty_percent)
+            self.$tokens.referral_create_program(influencer_id, program_id, royalty_percent)
           }
 
           #[payable]

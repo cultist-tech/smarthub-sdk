@@ -20,7 +20,6 @@ pub trait ReferralCore {
     // create program for contract (by influencer)
     fn referral_create_program(
         &mut self,
-        contract_id: AccountId,
         influencer_id: AccountId,
         program_id: ProgramId,
         royalty_percent: u64

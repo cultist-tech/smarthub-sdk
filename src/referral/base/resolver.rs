@@ -24,17 +24,6 @@ impl ReferralResolver for ReferralFeature {
         account_id: AccountId
     ) -> bool {
         let is_success = is_promise_success();
-        let attached = env::attached_deposit();
-
-        if !is_success {
-            let mut storage = Storage::start();
-
-            self.internal_add_referral(&contract_id, &influencer_id, &program_id, &account_id);
-
-            storage.refund(&attached);
-        } else {
-            refund_deposit_to_account(attached.clone());
-        }
 
         is_success
     }

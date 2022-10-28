@@ -107,11 +107,12 @@ impl ReferralCore for ReferralFeature {
     // payable
     fn referral_create_program(
         &mut self,
-        contract_id: AccountId,
         influencer_id: AccountId,
         program_id: ProgramId,
         royalty_percent: InfluencerRoyalty
     ) {
+        let contract_id = env::predecessor_account_id();
+
         self.internal_create_program(&contract_id, &influencer_id, &program_id, &royalty_percent)
     }
 

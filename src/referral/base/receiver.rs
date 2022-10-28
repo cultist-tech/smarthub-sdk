@@ -34,7 +34,6 @@ impl ReferralFeature {
                 ext_self
                     ::ext(env::current_account_id())
                     .with_static_gas(GAS_FOR_RESOLVE_REFERRAL_CREATE)
-                    .with_attached_deposit(env::attached_deposit())
                     .resolve_on_referral_create(
                         contract_id.clone(),
                         influencer_id.clone(),
