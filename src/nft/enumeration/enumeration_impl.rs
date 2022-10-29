@@ -1,9 +1,10 @@
 use super::NonFungibleTokenEnumeration;
 use crate::nft::token::Token;
-use crate::nft::{ NonFungibleToken, TokenId };
+use crate::nft::{NonFungibleToken, TokenId, TokenTypes};
 use near_sdk::json_types::{ U128 };
 use near_sdk::{ env, require, AccountId };
 use crate::nft::base::NonFungibleTokenCore;
+use std::collections::HashMap;
 
 impl NonFungibleToken {
     /// Helper function used by a enumerations methods
@@ -20,7 +21,7 @@ impl NonFungibleToken {
 
         let rarity = self.token_rarity_by_id.as_ref().unwrap().get(&token_id);
 
-        let token_types = self.token_types_by_id.as_ref().unwrap().get(&token_id);
+        let types: Option<TokenTypes> = self.token_types_by_id.as_ref().unwrap().get(&token_id);
 
         Token {
             token_id,
@@ -31,7 +32,7 @@ impl NonFungibleToken {
             bind_to_owner,
             reveal_at,
 
-            token_types,
+            types,
             rarity,
         }
     }

@@ -25,13 +25,7 @@ use near_sdk::{
     StorageUsage,
 };
 use std::collections::HashMap;
-use crate::nft::{
-    TokenRarity,
-    TokenCollection,
-    TokenType,
-    TokenSubType,
-    NonFungibleTokenBindToOwner,
-};
+use crate::nft::{TokenRarity, TokenCollection, TokenType, TokenSubType, NonFungibleTokenBindToOwner, TokenTypes};
 
 pub const GAS_FOR_RESOLVE_NFT_TRANSFER: Gas = Gas(5_000_000_000_000);
 pub const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_NFT_TRANSFER.0);
@@ -91,20 +85,21 @@ pub struct NonFungibleToken {
   // required by bind_to_owner extension
   pub bind_to_owner: BindToOwnerFeature,
 
-  // TODO experimental
+  // required by upgrade extension
   pub token_rarity_by_id: Option<LookupMap<TokenId, TokenRarity>>,
   pub token_collection_by_id: Option<LookupMap<TokenId, TokenCollection>>,
   pub token_type_by_id: Option<LookupMap<TokenId, TokenType>>,
   pub token_sub_type_by_id: Option<LookupMap<TokenId, TokenSubType>>,
-  
-  pub token_types_by_id:Option<LookupMap<TokenId, HashMap<String,String>>>,
+
+  pub token_types_by_id: Option<LookupMap<TokenId, TokenTypes>>,
 
   // required by reveal extension
   pub token_hidden_metadata: UnorderedSet<TokenMetadata>,
   pub tokens_to_reveal: UnorderedSet<TokenId>,
   pub token_reveal_time_by_id: LookupMap<TokenId, u64>,
-  
-  pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,  
+
+  // required by upgrade extension
+  pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,
 }
 
 impl NonFungibleToken {
@@ -127,7 +122,7 @@ impl NonFungibleToken {
         token_type_prefix: Option<E3>,
         token_sub_type_prefix: Option<E4>,
         token_types_prefix: Option<E5>,
-        
+
         upgrade_prefix: Option<U1>,
     )
         -> Self
@@ -177,7 +172,7 @@ impl NonFungibleToken {
             token_type_by_id: token_type_prefix.map(LookupMap::new),
             token_sub_type_by_id: token_sub_type_prefix.map(LookupMap::new),
             token_types_by_id: token_types_prefix.map(LookupMap::new),
-            
+
             upgrade_prices: upgrade_prefix.map(LookupMap::new),
         };
         this.measure_min_token_storage_cost();

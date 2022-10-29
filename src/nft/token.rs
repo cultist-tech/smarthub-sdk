@@ -39,8 +39,8 @@ pub struct Token {
     pub reveal_at: Option<u64>,
 
     // extra fields
-    pub rarity: Option<TokenRarity>,    
-    pub token_types: Option<TokenTypes>,
+    pub rarity: Option<TokenRarity>,
+    pub types: Option<TokenTypes>,
 }
 
 pub type TokenRarity = u8;
@@ -70,7 +70,7 @@ pub enum TokenCollection {
 
 impl std::fmt::Display for TokenCollection {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{:?}", self)    
+    write!(f, "{:?}", self)
   }
 }
 
@@ -106,7 +106,7 @@ pub enum TokenType {
 
 impl std::fmt::Display for TokenType {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{:?}", self)    
+    write!(f, "{:?}", self)
   }
 }
 
@@ -223,7 +223,7 @@ pub enum TokenSubType {
 
 impl std::fmt::Display for TokenSubType {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{:?}", self)    
+    write!(f, "{:?}", self)
   }
 }
 

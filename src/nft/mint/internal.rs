@@ -166,7 +166,7 @@ impl NonFungibleToken {
         if let Some(rarity) = &rarity {
             self.token_rarity_by_id.as_mut().unwrap().insert(&token_id, &rarity);
         }
-        
+
         let mut token_type_map: TokenTypes = HashMap::new();
         //token_type.insert(near_ft(),PRICE);
         if let Some(collection) = &collection {
@@ -177,12 +177,12 @@ impl NonFungibleToken {
         }
         if let Some(token_sub_type) = &token_sub_type {
             token_type_map.insert("token_sub_type".to_string(), token_sub_type.clone());
-        }        
-       
-        if token_type_map.len()>0 {
-            self.token_types_by_id.as_mut().unwrap().insert(&token_id, &token_type_map);            
         }
-        
+
+        if token_type_map.len()>0 {
+            self.token_types_by_id.as_mut().unwrap().insert(&token_id, &token_type_map);
+        }
+
         let type_option = if token_type_map.len()>0 {
             Some(token_type_map)
         } else {
@@ -204,7 +204,7 @@ impl NonFungibleToken {
             reveal_at,
 
             rarity: rarity.clone(),
-            token_types: type_option,
+            types: type_option,
         };
 
         (NftCreate { token: &token }).emit();
