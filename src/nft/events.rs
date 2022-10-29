@@ -18,6 +18,7 @@ use crate::nft::{Token, TokenId, TokenRarity};
 use near_sdk::json_types::U128;
 use near_sdk::AccountId;
 use serde::Serialize;
+use std::collections::HashMap;
 
 /// Data to log for an NFT mint event. To log this event, call [`.emit()`](NftMint::emit).
 #[must_use]
@@ -130,6 +131,7 @@ pub struct NftTransferPayout<'a> {
     pub sender_id: &'a AccountId,
     pub receiver_id: &'a AccountId,
     pub balance: &'a U128,
+    pub payout: &'a HashMap<AccountId, U128>,
 }
 
 impl NftTransferPayout<'_> {

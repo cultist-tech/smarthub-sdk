@@ -81,6 +81,7 @@ impl NonFungibleTokenPayout for NonFungibleToken {
             sender_id: &sender_id,
             receiver_id: &receiver_id,
             balance: &balance,
+            payout: &payout.payout,
         }).emit();
 
         payout
