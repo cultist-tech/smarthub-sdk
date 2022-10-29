@@ -9,6 +9,8 @@ use schemars::JsonSchema;
 /// Note that token IDs for NFTs are strings on NEAR. It's still fine to use autoincrementing numbers as unique IDs if desired, but they should be stringified. This is to make IDs more future-proof as chain-agnostic conventions and standards arise, and allows for more flexibility with considerations like bridging NFTs across chains, etc.
 pub type TokenId = String;
 
+pub type TokenTypes = HashMap<String, String>;
+
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(
     BorshDeserialize,
@@ -38,12 +40,11 @@ pub struct Token {
 
     // extra fields
     pub rarity: Option<TokenRarity>,
-    pub collection: Option<TokenCollection>,
-    pub token_type: Option<TokenType>,
-    pub token_sub_type: Option<TokenSubType>,
+    pub types: Option<TokenTypes>,
 }
 
 pub type TokenRarity = u8;
+
 
 #[derive(
     Debug,
@@ -65,6 +66,12 @@ pub enum TokenCollection {
     Asian,
     CyberPunk,
     Unknown,
+}
+
+impl std::fmt::Display for TokenCollection {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
 }
 
 #[derive(
@@ -96,6 +103,13 @@ pub enum TokenType {
     Access,
     Present,
 }
+
+impl std::fmt::Display for TokenType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
+}
+
 
 #[derive(
     Debug,
@@ -206,3 +220,10 @@ pub enum TokenSubType {
     BeastMan,
     Werewolf,
 }
+
+impl std::fmt::Display for TokenSubType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
+}
+

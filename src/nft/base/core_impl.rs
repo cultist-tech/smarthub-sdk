@@ -25,13 +25,7 @@ use near_sdk::{
     StorageUsage,
 };
 use std::collections::HashMap;
-use crate::nft::{
-    TokenRarity,
-    TokenCollection,
-    TokenType,
-    TokenSubType,
-    NonFungibleTokenBindToOwner,
-};
+use crate::nft::{TokenRarity, TokenCollection, TokenType, TokenSubType, NonFungibleTokenBindToOwner, TokenTypes};
 
 pub const GAS_FOR_RESOLVE_NFT_TRANSFER: Gas = Gas(5_000_000_000_000);
 pub const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_NFT_TRANSFER.0);
@@ -91,22 +85,25 @@ pub struct NonFungibleToken {
   // required by bind_to_owner extension
   pub bind_to_owner: BindToOwnerFeature,
 
-  // TODO experimental
+  // required by upgrade extension
   pub token_rarity_by_id: Option<LookupMap<TokenId, TokenRarity>>,
   pub token_collection_by_id: Option<LookupMap<TokenId, TokenCollection>>,
   pub token_type_by_id: Option<LookupMap<TokenId, TokenType>>,
   pub token_sub_type_by_id: Option<LookupMap<TokenId, TokenSubType>>,
 
+  pub token_types_by_id: Option<LookupMap<TokenId, TokenTypes>>,
+
   // required by reveal extension
   pub token_hidden_metadata: UnorderedSet<TokenMetadata>,
   pub tokens_to_reveal: UnorderedSet<TokenId>,
   pub token_reveal_time_by_id: LookupMap<TokenId, u64>,
-  
+
+  // required by upgrade extension
   pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,
 }
 
 impl NonFungibleToken {
-    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, E3, E4, U1>(
+    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, E3, E4, E5, U1>(
         owner_by_id_prefix: Q,
         token_metadata_prefix: Option<R>,
         enumeration_prefix: Option<S>,
@@ -124,7 +121,8 @@ impl NonFungibleToken {
         token_collection_prefix: Option<E2>,
         token_type_prefix: Option<E3>,
         token_sub_type_prefix: Option<E4>,
-        
+        token_types_prefix: Option<E5>,
+
         upgrade_prefix: Option<U1>,
     )
         -> Self
@@ -142,6 +140,7 @@ impl NonFungibleToken {
             E2: IntoStorageKey,
             E3: IntoStorageKey,
             E4: IntoStorageKey,
+            E5: IntoStorageKey,
             U1: IntoStorageKey
     {
         let (approvals_by_id, next_approval_id_by_id) = if let Some(prefix) = approval_prefix {
@@ -172,7 +171,8 @@ impl NonFungibleToken {
             token_collection_by_id: token_collection_prefix.map(LookupMap::new),
             token_type_by_id: token_type_prefix.map(LookupMap::new),
             token_sub_type_by_id: token_sub_type_prefix.map(LookupMap::new),
-            
+            token_types_by_id: token_types_prefix.map(LookupMap::new),
+
             upgrade_prices: upgrade_prefix.map(LookupMap::new),
         };
         this.measure_min_token_storage_cost();

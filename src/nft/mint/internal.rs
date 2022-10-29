@@ -7,9 +7,7 @@ use crate::nft::{
     Token,
     TokenId,
     TokenRarity,
-    TokenCollection,
-    TokenType,
-    TokenSubType,
+    TokenTypes,
 };
 use crate::nft::royalty::Royalty;
 use near_sdk::collections::UnorderedSet;
@@ -28,9 +26,9 @@ impl NonFungibleToken {
         reveal_at: Option<u64>,
 
         rarity: Option<TokenRarity>,
-        collection: Option<TokenCollection>,
-        token_type: Option<TokenType>,
-        token_sub_type: Option<TokenSubType>
+        collection: Option<String>,
+        token_type: Option<String>,
+        token_sub_type: Option<String>
     ) -> Token {
         //While hidden token minting metadata to hide must be provided
         if reveal_at.is_some() {
@@ -104,9 +102,9 @@ impl NonFungibleToken {
         reveal_at: Option<u64>,
 
         rarity: Option<TokenRarity>,
-        collection: Option<TokenCollection>,
-        token_type: Option<TokenType>,
-        token_sub_type: Option<TokenSubType>,
+        collection: Option<String>,
+        token_type: Option<String>,
+        token_sub_type: Option<String>,
 
         _refund_id: Option<AccountId>
     ) -> Token {
@@ -168,15 +166,28 @@ impl NonFungibleToken {
         if let Some(rarity) = &rarity {
             self.token_rarity_by_id.as_mut().unwrap().insert(&token_id, &rarity);
         }
+
+        let mut token_type_map: TokenTypes = HashMap::new();
+        //token_type.insert(near_ft(),PRICE);
         if let Some(collection) = &collection {
-            self.token_collection_by_id.as_mut().unwrap().insert(&token_id, &collection);
+            token_type_map.insert("collection".to_string(), collection.clone());
         }
         if let Some(token_type) = &token_type {
-            self.token_type_by_id.as_mut().unwrap().insert(&token_id, &token_type);
+            token_type_map.insert("token_type".to_string(), token_type.clone());
         }
         if let Some(token_sub_type) = &token_sub_type {
-            self.token_sub_type_by_id.as_mut().unwrap().insert(&token_id, &token_sub_type);
+            token_type_map.insert("token_sub_type".to_string(), token_sub_type.clone());
         }
+
+        if token_type_map.len()>0 {
+            self.token_types_by_id.as_mut().unwrap().insert(&token_id, &token_type_map);
+        }
+
+        let type_option = if token_type_map.len()>0 {
+            Some(token_type_map)
+        } else {
+            None
+        };
 
         // if let Some((id, storage_usage)) = initial_storage_usage {
         // refund_deposit_to_account(env::storage_usage() - storage_usage, id)
@@ -193,9 +204,7 @@ impl NonFungibleToken {
             reveal_at,
 
             rarity: rarity.clone(),
-            token_sub_type: token_sub_type.clone(),
-            token_type: token_type.clone(),
-            collection: collection.clone(),
+            types: type_option,
         };
 
         (NftCreate { token: &token }).emit();

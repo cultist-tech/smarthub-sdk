@@ -1,6 +1,6 @@
 use crate::nft::metadata::TokenMetadata;
 use crate::nft::mint::NonFungibleTokenMint;
-use crate::nft::{NonFungibleToken, Token, TokenId, TokenRarity, TokenCollection, TokenType, TokenSubType};
+use crate::nft::{NonFungibleToken, Token, TokenId, TokenRarity };
 use crate::nft::royalty::Royalty;
 use near_sdk::{AccountId, env};
 
@@ -17,9 +17,9 @@ impl NonFungibleTokenMint for NonFungibleToken {
         reveal_at: Option<u64>,
 
         rarity: Option<TokenRarity>,
-        collection: Option<TokenCollection>,
-        token_type: Option<TokenType>,
-        token_sub_type: Option<TokenSubType>,
+        collection: Option<String>,
+        token_type: Option<String>,
+        token_sub_type: Option<String>,
     ) -> Token {
         self.internal_mint_nft(
             &token_id,
