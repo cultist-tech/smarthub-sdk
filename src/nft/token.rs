@@ -11,6 +11,10 @@ pub type TokenId = String;
 
 pub type TokenTypes = HashMap<String, String>;
 
+pub const TOKEN_COLLECTION: &str = "token_collection";
+pub const TOKEN_TYPE: &str = "toke_type";
+pub const TOKEN_SUB_TYPE: &str = "token_sub_type";
+
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(
     BorshDeserialize,
@@ -45,7 +49,7 @@ pub struct Token {
 
 pub type TokenRarity = u8;
 
-
+// Remove after migration
 #[derive(
     Debug,
     Clone,
@@ -74,6 +78,7 @@ impl std::fmt::Display for TokenCollection {
   }
 }
 
+// Remove after migration
 #[derive(
     Debug,
     Clone,
@@ -110,7 +115,7 @@ impl std::fmt::Display for TokenType {
   }
 }
 
-
+// Remove after migration
 #[derive(
     Debug,
     Clone,
