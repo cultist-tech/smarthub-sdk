@@ -171,7 +171,7 @@ impl NonFungibleToken {
         }
         
         let mut token_type_map: TokenTypes = HashMap::new();
-        //token_type.insert(near_ft(),PRICE);
+        
         if let Some(collection) = &collection {
             token_type_map.insert(TOKEN_COLLECTION.to_string(), collection.clone());
         }
@@ -207,7 +207,7 @@ impl NonFungibleToken {
             reveal_at,
 
             rarity: rarity.clone(),
-            token_types: type_option,
+            types: type_option,
         };
 
         (NftCreate { token: &token }).emit();

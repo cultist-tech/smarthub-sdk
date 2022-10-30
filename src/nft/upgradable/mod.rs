@@ -1,8 +1,7 @@
 pub use upgradable_impl::*;
 use near_sdk::AccountId;
 use near_sdk::json_types::U128;
-use crate::nft::{ TokenId, TokenRarity /*, TokenType*/ };
-use crate::nft::metadata::UpgradePrice;
+use crate::nft::{ TokenId, TokenRarity };
 
 pub mod upgradable_impl;
 mod macros;

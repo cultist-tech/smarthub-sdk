@@ -216,7 +216,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Alice nft1 nft_view outcome: {:#?}", res);
+    println!("Alice nft nft_view outcome: {:#?}", res);
     assert_eq!(res[0]["token_id"], token_id);
     assert_eq!(res[0]["rarity"], rarity_1);
 
@@ -252,7 +252,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
     assert_eq!(res[0], json!(ft_contract.id()));
     assert_eq!(res[1], json!(price_in_ft));
 
-    //Make arg string to transfer FT to update nft
+    //Make arg string to transfer FT to upgrade nft
     let update_msg = serde_json
         ::to_string(
             &Args::Update(UpdateOnFtTransferArgs {
@@ -262,7 +262,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .ok()
         .expect("Wrong struct to stringify");
 
-    //Transfer FT amount to update nft
+    //Transfer FT amount to upgrade nft
     let res = alice
         .call(&worker, ft_contract.id(), "ft_transfer_call")
         .args_json(
@@ -288,7 +288,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Alice nft1 nft_view outcome: {:#?}", res);
+    println!("Alice nft nft_view outcome: {:#?}", res);
     assert_eq!(res[0]["token_id"], token_id);
     assert_eq!(res[0]["rarity"], rarity_2);
 
