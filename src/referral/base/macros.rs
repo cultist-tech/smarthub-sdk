@@ -38,6 +38,15 @@ macro_rules! impl_referral_core {
             self.$tokens.referral_accept(contract_id, influencer_id, program_id)
           }
 
+          #[payable]
+          fn referral_accept_code(
+              &mut self,
+              code: String,
+          ) {
+            self.$assert_access();
+            self.$tokens.referral_accept_code(code)
+          }
+
           fn referral_program_royalty(
               &self,
               contract_id: AccountId,

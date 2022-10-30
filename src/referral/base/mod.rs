@@ -32,6 +32,11 @@ pub trait ReferralCore {
         program_id: ProgramId
     );
 
+    fn referral_accept_code(
+        &mut self,
+        code: String,
+    );
+
     fn referral_program_royalty(
         &self,
         contract_id: AccountId,

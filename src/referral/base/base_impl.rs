@@ -130,6 +130,20 @@ impl ReferralCore for ReferralFeature {
         )
     }
 
+    fn referral_accept_code(
+        &mut self,
+        code: String
+    ) {
+        let info: ReferralInfo = self.info_by_code.get(&code).expect("Not found referral program");
+
+        self.internal_accept_referral(
+            &info.contract_id,
+            &info.influencer_id,
+            &info.program_id,
+            &env::predecessor_account_id()
+        )
+    }
+
     fn referral_program_royalty(
         &self,
         contract_id: AccountId,
