@@ -10,6 +10,9 @@ use schemars::JsonSchema;
 pub type TokenId = String;
 
 pub type TokenTypes = HashMap<String, String>;
+pub const TOKEN_COLLECTION: &str = "tokenCollection";
+pub const TOKEN_TYPE: &str = "tokenType";
+pub const TOKEN_SUB_TYPE: &str = "tokenSubType";
 
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(
@@ -44,7 +47,6 @@ pub struct Token {
 }
 
 pub type TokenRarity = u8;
-
 
 #[derive(
     Debug,
@@ -226,4 +228,3 @@ impl std::fmt::Display for TokenSubType {
     write!(f, "{:?}", self)    
   }
 }
-

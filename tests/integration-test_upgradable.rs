@@ -81,7 +81,8 @@ async fn mint_token_to_user(
     nft_contract: &Contract,
     token: &String,
     user: &Account,
-    rarity: &TokenRarity
+    rarity: &TokenRarity,
+    token_type: &String,
 ) -> anyhow::Result<CallExecutionDetails> {
     let nft_outcome = nft_contract
         .call(&worker, "nft_mint")
@@ -94,7 +95,8 @@ async fn mint_token_to_user(
                 "dscription": "Tallest mountain in charted solar system",
                 "copies": 1,
             },
-            "rarity": rarity,            
+            "rarity": rarity,       
+            "token_type": Some(token_type),
         })
         )?
         .gas(near_units::parse_gas!("300 T") as u64)
@@ -154,9 +156,10 @@ async fn test_upgradable() -> anyhow::Result<()> {
 
     let token_id = "nft".to_string();
     let rarity_1 = 1;
+    let token_type = "Armor".to_string();
 
     //Mint nft token to Alice
-    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0).await?;
+    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0, &token_type).await?;
     println!("Nft_mint NFT to Alice outcome: {:#?}", res);
 
     let price_rarity1 = ONE_NEAR * 8;
@@ -165,7 +168,8 @@ async fn test_upgradable() -> anyhow::Result<()> {
     let res = nft_contract
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
-            json!({            
+            json!({        
+            "token_type": token_type,
             "rarity": rarity_1,
             "ft_token_id": near_ft(),
             "price": U128(price_rarity1)
@@ -223,6 +227,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
             json!({            
+            "token_type": token_type,            
             "rarity": rarity_2,
             "ft_token_id": ft_contract.id(),
             "price": price_in_ft

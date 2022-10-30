@@ -27,9 +27,6 @@ use near_sdk::{
 use std::collections::HashMap;
 use crate::nft::{
     TokenRarity,
-    TokenCollection,
-    TokenType,
-    TokenSubType,
     NonFungibleTokenBindToOwner,
 };
 
