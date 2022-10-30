@@ -47,6 +47,10 @@ macro_rules! impl_referral_core {
             self.$tokens.referral_accept_code(code)
           }
 
+          fn referral_code_info(&self, code: String) -> Option<$crate::referral::ReferralInfo> {
+            self.$tokens.referral_code_info(code)
+          }
+
           fn referral_program_royalty(
               &self,
               contract_id: AccountId,

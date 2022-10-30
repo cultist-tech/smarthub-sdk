@@ -8,7 +8,7 @@ pub use self::base_impl::{ ReferralFeature };
 pub use self::receiver::{ ReferralReceiver };
 pub use self::resolver::{ ReferralResolver };
 use near_sdk::AccountId;
-use crate::referral::{ProgramId, ContractId};
+use crate::referral::{ProgramId, ContractId, ReferralInfo};
 use crate::referral::metadata::{ InfluencerId, InfluencerRoyalty };
 
 pub trait ReferralCore {
@@ -16,6 +16,8 @@ pub trait ReferralCore {
     fn referral_by(&self, contract_id: AccountId, account_id: AccountId) -> Option<AccountId>;
 
     fn referral_program_code(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<String>;
+
+    fn referral_code_info(&self, code: String) -> Option<ReferralInfo>;
 
     // create program for contract (by influencer)
     fn referral_create_program(

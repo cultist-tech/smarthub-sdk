@@ -104,6 +104,10 @@ impl ReferralCore for ReferralFeature {
         self.code_by_program.get(&id)
     }
 
+    fn referral_code_info(&self, code: String) -> Option<ReferralInfo> {
+        self.info_by_code.get(&code)
+    }
+
     // payable
     fn referral_create_program(
         &mut self,
