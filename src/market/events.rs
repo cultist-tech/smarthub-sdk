@@ -4,6 +4,7 @@ use serde::Serialize;
 use near_sdk::json_types::U128;
 use crate::market::{ TokenId, Sale };
 use crate::nft::royalty::Payout;
+use std::collections::HashMap;
 
 /// Data to log for an NFT mint event. To log this event, call [`.emit()`](NftMint::emit).
 #[must_use]
@@ -89,7 +90,7 @@ pub struct MarketOffer<'a> {
     pub receiver_id: &'a AccountId,
     pub nft_contract_id: &'a AccountId,
     pub token_id: &'a TokenId,
-    pub payout: &'a Payout,
+    pub payout: &'a HashMap<AccountId, U128>,
     pub ft_token_id: &'a AccountId,
     pub price: &'a U128,
 }

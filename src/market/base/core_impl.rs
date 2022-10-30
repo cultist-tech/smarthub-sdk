@@ -356,7 +356,7 @@ impl MarketCore for MarketFeature {
                 receiver_id: &buyer_id,
                 nft_contract_id: &sale.nft_contract_id,
                 token_id: &sale.token_id.to_string(),
-                payout: &payout,
+                payout: &payout.payout,
                 ft_token_id: &ft_token_id,
                 price: &price,
             }).emit();
@@ -377,7 +377,7 @@ impl MarketCore for MarketFeature {
                 receiver_id: &buyer_id,
                 nft_contract_id: &sale.nft_contract_id,
                 token_id: &sale.token_id.to_string(),
-                payout: &payout,
+                payout: &payout.payout,
                 ft_token_id: &ft_token_id,
                 price: &price,
             }).emit();
