@@ -6,8 +6,9 @@ use near_sdk::serde::{ Deserialize, Serialize };
 use near_sdk::json_types::U128;
 use schemars::JsonSchema;
 use serde_json::json;
-use mfight_sdk::nft::{ TokenRarity, UpdateOnFtTransferArgs };
+use mfight_sdk::nft::{ TokenRarity, UpdateOnFtTransferArgs, TokenTypes, TOKEN_TYPE };
 use mfight_sdk::utils::near_ft;
+use std::collections::HashMap;
 
 const NFT_WASM_FILEPATH: &str = "./out/nft/nft.wasm";
 const FT_WASM_FILEPATH: &str = "./out/ft/ft.wasm";
@@ -82,7 +83,7 @@ async fn mint_token_to_user(
     token: &String,
     user: &Account,
     rarity: &TokenRarity,
-    token_type: &String,
+    token_type: &String
 ) -> anyhow::Result<CallExecutionDetails> {
     let nft_outcome = nft_contract
         .call(&worker, "nft_mint")
@@ -162,6 +163,12 @@ async fn test_upgradable() -> anyhow::Result<()> {
     let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0, &token_type).await?;
     println!("Nft_mint NFT to Alice outcome: {:#?}", res);
 
+    // Create types string
+    let mut token_types_map: TokenTypes = HashMap::new();
+    token_types_map.insert(TOKEN_TYPE.to_string(), token_type.clone());
+
+    let types = serde_json::to_string(&token_types_map).ok().expect("Wrong struct to stringify");
+
     let price_rarity1 = ONE_NEAR * 8;
 
     //Set upgrade price
@@ -169,7 +176,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
             json!({        
-            "token_type": token_type,
+            "types": types,
             "rarity": rarity_1,
             "ft_token_id": near_ft(),
             "price": U128(price_rarity1)
@@ -227,7 +234,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
             json!({            
-            "token_type": token_type,            
+            "types": types,            
             "rarity": rarity_2,
             "ft_token_id": ft_contract.id(),
             "price": price_in_ft

@@ -11,7 +11,7 @@ pub trait NonFungibleTokenUpgradable {
 
     fn nft_set_upgrade_price(
         &mut self,
-        token_type: String,
+        types: Option<String>,
         rarity: TokenRarity,
         ft_token_id: AccountId,
         price: U128

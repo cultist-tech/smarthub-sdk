@@ -41,22 +41,23 @@ impl NonFungibleToken {
     pub fn internal_price_for_token_upgrade(&self, token_id: &TokenId) -> Option<UpgradePrice> {
         let next_rarity = self.assert_next_rarity(&token_id);
 
-        let token_type = self.internal_get_type(token_id, &TOKEN_TYPE.to_string());
+        let types = self.internal_get_types(&token_id);
 
-        let upgrade_key = upgrade_key(&token_type, &next_rarity);
+        let upgrade_key = upgrade_key(&types, &next_rarity);
 
         let price = self.upgrade_prices.as_ref().unwrap().get(&upgrade_key);
 
         price
     }
 
-    pub fn internal_get_type(&self, token_id: &TokenId, type_name: &String) -> String {
+    pub fn internal_get_types(&self, token_id: &TokenId) -> String {
         let mut token_type = "".to_string();
         if let Some(types_map) = &self.token_types_by_id {
             if let Some(token_types) = types_map.get(&token_id) {
-                if let Some(t_type) = token_types.get(type_name) {
-                    token_type = t_type.clone();
-                }
+                token_type = serde_json
+                    ::to_string(&token_types)
+                    .ok()
+                    .expect("Wrong struct to stringify");
             }
         }
 
@@ -65,11 +66,11 @@ impl NonFungibleToken {
 
     pub fn internal_set_upgrade_price(
         &mut self,
-        token_type: &String,
+        types: &String,
         rarity: &TokenRarity,
         price: &UpgradePrice
     ) {
-        let upgrade_key = upgrade_key(token_type, rarity);
+        let upgrade_key = upgrade_key(types, rarity);
 
         self.upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
     }
@@ -141,7 +142,7 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
 
     fn nft_set_upgrade_price(
         &mut self,
-        token_type: String,
+        types: Option<String>,
         rarity: TokenRarity,
         ft_token_id: AccountId,
         price: U128
@@ -153,7 +154,9 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
             price: price.into(),
         };
 
-        self.internal_set_upgrade_price(&token_type, &rarity, &upgrade_price);
+        let types_str = if let Some(t_str) = types { t_str } else { "".to_string() };
+
+        self.internal_set_upgrade_price(&types_str, &rarity, &upgrade_price);
     }
 
     fn nft_upgrade_price(&self, token_id: TokenId) -> Option<(AccountId, U128)> {
