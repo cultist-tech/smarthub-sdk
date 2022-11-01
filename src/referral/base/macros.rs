@@ -21,10 +21,11 @@ macro_rules! impl_referral_core {
               &mut self,
               influencer_id: AccountId,
               program_id: $crate::referral::ProgramId,
-              royalty_percent: u64
+              royalty_percent: Option<u64>,
+              metadata: Option<$crate::referral::ReferralProgramMetadata>,
           ) {
             self.$assert_access();
-            self.$tokens.referral_create_program(influencer_id, program_id, royalty_percent)
+            self.$tokens.referral_create_program(influencer_id, program_id, royalty_percent, metadata)
           }
 
           #[payable]
@@ -58,6 +59,10 @@ macro_rules! impl_referral_core {
               program_id: $crate::referral::ProgramId
           ) -> Option<$crate::referral::InfluencerRoyalty> {
             self.$tokens.referral_program_royalty(contract_id, influencer_id, program_id)
+          }
+
+          fn referral_program(&self, contract_id: $crate::referral::ContractId, influencer_id: $crate::referral::InfluencerId, program_id: $crate::referral::ProgramId) -> Option<$crate::referral::ReferralProgram> {
+           self.$tokens.referral_program(contract_id, influencer_id, program_id)
           }
         }
 

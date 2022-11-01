@@ -6,7 +6,7 @@ pub(crate) static DELIMETER: &str = "||";
 pub(crate) const PRICE_PER_PROGRAM: u128 = 100000000000000000000000;
 pub(crate) const PRICE_PER_REFERRAL: u128 = 20000000000000000000000;
 
-pub(crate) fn influencer_program_id(
+pub(crate) fn get_program_id(
     contract_id: &ContractId,
     influencer_id: &InfluencerId,
     program_id: &ProgramId

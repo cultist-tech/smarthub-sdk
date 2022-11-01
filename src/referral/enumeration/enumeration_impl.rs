@@ -1,7 +1,7 @@
 use near_sdk::AccountId;
 use near_sdk::json_types::{ U128 };
 use crate::referral::{ ReferralFeature, ReferralEnumeration, InfluencerId, ContractId, ProgramId };
-use crate::referral::utils::influencer_program_id;
+use crate::referral::utils::get_program_id;
 
 impl ReferralEnumeration for ReferralFeature {
     fn referrals_by_contract(&self, contract_id: AccountId) -> Vec<AccountId> {
@@ -26,7 +26,7 @@ impl ReferralEnumeration for ReferralFeature {
         influencer_id: AccountId,
         program_id: String
     ) -> Vec<AccountId> {
-        let id = influencer_program_id(&contract_id, &influencer_id, &program_id);
+        let id = get_program_id(&contract_id, &influencer_id, &program_id);
 
         if let Some(referrals) = self.referrals_by_program.get(&id) {
             referrals.to_vec()
@@ -41,7 +41,7 @@ impl ReferralEnumeration for ReferralFeature {
         influencer_id: AccountId,
         program_id: String
     ) -> u128 {
-        let id = influencer_program_id(&contract_id, &influencer_id, &program_id);
+        let id = get_program_id(&contract_id, &influencer_id, &program_id);
 
         if let Some(referrals) = self.referrals_by_program.get(&id) {
             referrals.len() as u128

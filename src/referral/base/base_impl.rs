@@ -1,6 +1,6 @@
 use near_sdk::{ AccountId, IntoStorageKey, env };
 use near_sdk::json_types::{ U128 };
-use crate::referral::{ ProgramId, ReferralCore, ReferralInfo };
+use crate::referral::{ProgramId, ReferralCore, ReferralInfo, ContractProgramId, ReferralProgramMetadata, ReferralProgram};
 use crate::referral::metadata::{
     InfluencerId,
     AccountContractId,
@@ -11,7 +11,7 @@ use crate::referral::metadata::{
 use near_sdk::collections::{ LookupMap, TreeMap, UnorderedSet };
 use near_sdk::borsh::{ self, BorshDeserialize, BorshSerialize };
 use crate::storage::StorageFeature;
-use crate::referral::utils::{ contract_account_id, influencer_program_id };
+use crate::referral::utils::{ contract_account_id, get_program_id };
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct ReferralFeature {
@@ -19,7 +19,9 @@ pub struct ReferralFeature {
     pub referrals_by_contract: TreeMap<ContractId, UnorderedSet<AccountId>>,
     pub referrals_by_influencer: TreeMap<InfluencerId, UnorderedSet<AccountId>>,
     pub referrals_by_program: TreeMap<InfluencerProgramId, UnorderedSet<AccountId>>,
+
     pub royalty_by_program: LookupMap<InfluencerProgramId, InfluencerRoyalty>,
+    pub metadata_by_program: LookupMap<ContractProgramId, ReferralProgramMetadata>,
 
     pub programs_by_contract: TreeMap<ContractId, TreeMap<InfluencerId, UnorderedSet<ProgramId>>>,
     pub programs_by_influencer: TreeMap<InfluencerId, TreeMap<ContractId, UnorderedSet<ProgramId>>>,
@@ -29,7 +31,7 @@ pub struct ReferralFeature {
 }
 
 impl ReferralFeature {
-    pub fn new<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+    pub fn new<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
         prefix1: T1,
         prefix2: T2,
         prefix3: T3,
@@ -38,7 +40,8 @@ impl ReferralFeature {
         prefix6: T6,
         prefix7: T7,
         prefix8: T8,
-        prefix9: T9
+        prefix9: T9,
+        prefix10: T10,
     )
         -> Self
         where
@@ -50,7 +53,8 @@ impl ReferralFeature {
             T6: IntoStorageKey,
             T7: IntoStorageKey,
             T8: IntoStorageKey,
-            T9: IntoStorageKey
+            T9: IntoStorageKey,
+            T10: IntoStorageKey,
     {
         let mut this = Self {
             influencer_by_id: LookupMap::new(prefix1),
@@ -62,6 +66,7 @@ impl ReferralFeature {
             programs_by_influencer: TreeMap::new(prefix7),
             code_by_program: LookupMap::new(prefix8),
             info_by_code: LookupMap::new(prefix9),
+            metadata_by_program: LookupMap::new(prefix10),
         };
 
         this
@@ -99,7 +104,7 @@ impl ReferralCore for ReferralFeature {
         influencer_id: InfluencerId,
         program_id: ProgramId
     ) -> Option<String> {
-        let id = influencer_program_id(&contract_id, &influencer_id, &program_id);
+        let id = get_program_id(&contract_id, &influencer_id, &program_id);
 
         self.code_by_program.get(&id)
     }
@@ -108,16 +113,39 @@ impl ReferralCore for ReferralFeature {
         self.info_by_code.get(&code)
     }
 
+    fn referral_program(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<ReferralProgram> {
+        let id = get_program_id(&contract_id, &influencer_id, &program_id);
+
+        let code = self.code_by_program.get(&id);
+
+        let program = if let Some(code) = code {
+            let metadata = self.metadata_by_program.get(&id);
+
+            Some(ReferralProgram {
+                contract_id,
+                influencer_id,
+                program_id,
+                metadata,
+                code,
+            })
+        } else {
+            None
+        };
+
+        program
+    }
+
     // payable
     fn referral_create_program(
         &mut self,
         influencer_id: AccountId,
         program_id: ProgramId,
-        royalty_percent: InfluencerRoyalty
+        royalty_percent: Option<u64>,
+        metadata: Option<ReferralProgramMetadata>,
     ) {
         let contract_id = env::predecessor_account_id();
 
-        self.internal_create_program(&contract_id, &influencer_id, &program_id, &royalty_percent)
+        self.internal_create_program(&contract_id, &influencer_id, &program_id, &royalty_percent, &metadata)
     }
 
     fn referral_accept(
@@ -154,7 +182,7 @@ impl ReferralCore for ReferralFeature {
         influencer_id: InfluencerId,
         program_id: ProgramId
     ) -> Option<u64> {
-        let id = influencer_program_id(&contract_id, &influencer_id, &program_id);
+        let id = get_program_id(&contract_id, &influencer_id, &program_id);
 
         self.royalty_by_program.get(&id)
     }

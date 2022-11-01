@@ -3,6 +3,7 @@ use near_sdk::AccountId;
 use serde::Serialize;
 use crate::nft_ido::{ Ido, IdoId, TokenId };
 use near_sdk::json_types::{U128};
+use crate::referral::ReferralProgramMetadata;
 
 #[must_use]
 #[derive(Serialize, Debug, Clone)]
@@ -10,8 +11,9 @@ pub struct ProgramCreate<'a> {
     pub contract_id: &'a AccountId,
     pub influencer_id: &'a AccountId,
     pub program_id: &'a String,
-    pub royalty_percent: &'a u64,
+    pub royalty_percent: &'a Option<u64>,
     pub code: &'a String,
+    pub metadata: &'a Option<ReferralProgramMetadata>,
 }
 
 impl ProgramCreate<'_> {

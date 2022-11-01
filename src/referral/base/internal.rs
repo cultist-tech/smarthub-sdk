@@ -1,10 +1,10 @@
 use crate::referral::base::base_impl::ReferralFeature;
 use near_sdk::borsh::{ self, BorshSerialize };
 use near_sdk::{ BorshStorageKey, CryptoHash, env, AccountId };
-use crate::referral::{ ContractId, InfluencerId, ProgramId, InfluencerRoyalty, ReferralInfo };
+use crate::referral::{ContractId, InfluencerId, ProgramId, InfluencerRoyalty, ReferralInfo, ReferralProgramMetadata};
 use near_sdk::collections::{ UnorderedSet, TreeMap };
 use crate::referral::utils::{
-    influencer_program_id,
+    get_program_id,
     contract_account_id,
     assert_referral_program_money,
     assert_referral_money,
@@ -54,14 +54,15 @@ impl ReferralFeature {
         contract_id: &ContractId,
         influencer_id: &InfluencerId,
         program_id: &ProgramId,
-        royalty: &InfluencerRoyalty
+        royalty_percent: &Option<u64>,
+        metadata: &Option<ReferralProgramMetadata>
     ) {
         let attached_deposit = env::attached_deposit();
         let mut storage = Storage::start();
 
         assert_referral_program_money();
 
-        let id = influencer_program_id(contract_id, influencer_id, program_id);
+        let id = get_program_id(contract_id, influencer_id, program_id);
         let code = self.internal_get_random_code();
 
         assert!(self.referrals_by_program.get(&id).is_none(), "Program already exists");
@@ -92,7 +93,12 @@ impl ReferralFeature {
         );
 
         // royalty
-        self.royalty_by_program.insert(&id, royalty);
+        if let Some(royalty_percent) = royalty_percent {
+            self.royalty_by_program.insert(&id, royalty_percent);
+        }
+        if let Some(metadata) = metadata {
+            self.metadata_by_program.insert(&id, &metadata);
+        }
 
         // code
         self.code_by_program.insert(&id, &code);
@@ -109,8 +115,9 @@ impl ReferralFeature {
             contract_id: &contract_id,
             influencer_id: &influencer_id,
             program_id: &program_id,
-            royalty_percent: &royalty,
-            code: &code
+            royalty_percent: &royalty_percent,
+            code: &code,
+            metadata: &metadata,
         }.emit();
 
         storage.refund(&attached_deposit);
@@ -205,7 +212,7 @@ impl ReferralFeature {
         program_id: &ProgramId,
         account_id: &AccountId
     ) {
-        let id = influencer_program_id(contract_id, influencer_id, program_id);
+        let id = get_program_id(contract_id, influencer_id, program_id);
 
         let mut list = self.referrals_by_program.get(&id).unwrap_or_else(||
             UnorderedSet::new(StorageKey::ProgramReferralsInner {
@@ -226,7 +233,7 @@ impl ReferralFeature {
         account_id: &AccountId
     ) {
         let contract_account = contract_account_id(&contract_id, &account_id);
-        let id = influencer_program_id(contract_id, influencer_id, program_id);
+        let id = get_program_id(contract_id, influencer_id, program_id);
 
         self.influencer_by_id.remove(&contract_account);
 
