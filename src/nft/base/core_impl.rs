@@ -25,7 +25,7 @@ use near_sdk::{
     StorageUsage,
 };
 use std::collections::HashMap;
-use crate::nft::{TokenRarity, TokenCollection, TokenType, TokenSubType, NonFungibleTokenBindToOwner, TokenTypes};
+use crate::nft::{TokenRarity, NonFungibleTokenBindToOwner, TokenTypes};
 
 pub const GAS_FOR_RESOLVE_NFT_TRANSFER: Gas = Gas(5_000_000_000_000);
 pub const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_NFT_TRANSFER.0);

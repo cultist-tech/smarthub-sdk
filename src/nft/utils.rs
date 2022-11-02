@@ -1,6 +1,7 @@
 use near_sdk::{ env, AccountId, Balance, CryptoHash, Promise };
 use std::collections::HashMap;
 use std::mem::size_of;
+use crate::nft::TokenTypes;
 
 // TODO: need a way for end users to determine how much an approval will cost.
 pub fn bytes_for_approved_account_id(account_id: &AccountId) -> u64 {
@@ -35,3 +36,12 @@ pub fn upgrade_key(token_type: &String, rarity: &u8) -> String {
     format!("{}{}", token_type, rarity)
 }
 
+pub fn types_str(types: &Option<TokenTypes>) -> String {
+        let types_str = if let Some(types) = types {
+            serde_json::to_string(&types).ok().expect("Wrong struct to stringify")
+        } else {
+            "".to_string()
+        };
+        
+        types_str
+    }
