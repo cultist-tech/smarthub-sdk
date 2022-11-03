@@ -1,9 +1,17 @@
 use near_sdk::{ AccountId, env, Balance, Promise, PromiseOrValue };
 use near_sdk::json_types::U128;
-use crate::nft::{ NonFungibleToken, TokenId, TokenRarity, UpdateOnFtTransferArgs };
+use crate::nft::{
+    NonFungibleToken,
+    TokenId,
+    TokenRarity,
+    TokenTypes,
+    UpdateOnFtTransferArgs,
+    TOKEN_TYPE,
+};
 use crate::nft::metadata::UpgradePrice;
 use crate::nft::upgradable::NonFungibleTokenUpgradable;
 use crate::nft::events::NftUpgrade;
+use crate::nft::utils::{ upgrade_key, types_str };
 use crate::utils::near_ft;
 
 const RARITY_MAX: u8 = 6;
@@ -38,17 +46,27 @@ impl NonFungibleToken {
     }
 
     pub fn internal_price_for_token_upgrade(&self, token_id: &TokenId) -> Option<UpgradePrice> {
-        let next_rarity = self.assert_next_rarity(&token_id);
+        let next_rarity = self.assert_next_rarity(&token_id);        
+         
+        let types = self.token_types_by_id.as_ref().unwrap().get(&token_id);
+        
+        let types_str = types_str(&types);
 
-        let upgrade_key = next_rarity.to_string();
+        let upgrade_key = upgrade_key(&types_str, &next_rarity);
 
         let price = self.upgrade_prices.as_ref().unwrap().get(&upgrade_key);
 
         price
-    }
+    }   
 
-    pub fn internal_set_upgrade_price(&mut self, rarity: &TokenRarity, price: &UpgradePrice) {
-        let upgrade_key = rarity.to_string();
+    pub fn internal_set_upgrade_price(
+        &mut self,
+        types: &Option<TokenTypes>,
+        rarity: &TokenRarity,
+        price: &UpgradePrice
+    ) {
+        let types_str = types_str(types);
+        let upgrade_key = upgrade_key(&types_str, rarity);
 
         self.upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
     }
@@ -118,7 +136,13 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
         }
     }
 
-    fn nft_set_upgrade_price(&mut self, rarity: TokenRarity, ft_token_id: AccountId, price: U128) {
+    fn nft_set_upgrade_price(
+        &mut self,
+        types: Option<TokenTypes>,
+        rarity: TokenRarity,
+        ft_token_id: AccountId,
+        price: U128
+    ) {
         assert!(rarity <= RARITY_MAX, "Given rarity is more then assumpted!");
 
         let upgrade_price = UpgradePrice {
@@ -126,8 +150,22 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
             price: price.into(),
         };
 
-        self.internal_set_upgrade_price(&rarity, &upgrade_price);
+        self.internal_set_upgrade_price(&types, &rarity, &upgrade_price);
     }
+    
+    fn nft_remove_upgrade_price(
+        &mut self,
+        types: Option<TokenTypes>,
+        rarity: TokenRarity,       
+    ) {
+        
+        let types_str = types_str(&types);
+         
+        let upgrade_key = upgrade_key(&types_str, &rarity);
+         
+        assert!(self.upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(), "Price was not set");                  
+    }
+
 
     fn nft_upgrade_price(&self, token_id: TokenId) -> Option<(AccountId, U128)> {
         if let Some(price) = self.internal_price_for_token_upgrade(&token_id) {

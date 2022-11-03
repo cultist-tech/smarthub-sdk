@@ -8,6 +8,9 @@ use crate::nft::{
     TokenId,
     TokenRarity,
     TokenTypes,
+    TOKEN_COLLECTION,
+    TOKEN_TYPE,
+    TOKEN_SUB_TYPE,
 };
 use crate::nft::royalty::Royalty;
 use near_sdk::collections::UnorderedSet;
@@ -170,13 +173,13 @@ impl NonFungibleToken {
         let mut token_type_map: TokenTypes = HashMap::new();
         //token_type.insert(near_ft(),PRICE);
         if let Some(collection) = &collection {
-            token_type_map.insert("collection".to_string(), collection.clone());
+            token_type_map.insert(TOKEN_COLLECTION.to_string(), collection.clone());
         }
         if let Some(token_type) = &token_type {
-            token_type_map.insert("token_type".to_string(), token_type.clone());
+            token_type_map.insert(TOKEN_TYPE.to_string(), token_type.clone());
         }
         if let Some(token_sub_type) = &token_sub_type {
-            token_type_map.insert("token_sub_type".to_string(), token_sub_type.clone());
+            token_type_map.insert(TOKEN_SUB_TYPE.to_string(), token_sub_type.clone());
         }
 
         if token_type_map.len()>0 {

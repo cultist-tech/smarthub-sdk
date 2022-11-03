@@ -6,8 +6,9 @@ use near_sdk::serde::{ Deserialize, Serialize };
 use near_sdk::json_types::U128;
 use schemars::JsonSchema;
 use serde_json::json;
-use mfight_sdk::nft::{ TokenRarity, UpdateOnFtTransferArgs };
+use mfight_sdk::nft::{ TokenRarity, UpdateOnFtTransferArgs, TokenTypes, TOKEN_TYPE };
 use mfight_sdk::utils::near_ft;
+use std::collections::HashMap;
 
 const NFT_WASM_FILEPATH: &str = "./out/nft/nft.wasm";
 const FT_WASM_FILEPATH: &str = "./out/ft/ft.wasm";
@@ -81,7 +82,8 @@ async fn mint_token_to_user(
     nft_contract: &Contract,
     token: &String,
     user: &Account,
-    rarity: &TokenRarity
+    rarity: &TokenRarity,
+    token_type: &String
 ) -> anyhow::Result<CallExecutionDetails> {
     let nft_outcome = nft_contract
         .call(&worker, "nft_mint")
@@ -94,7 +96,8 @@ async fn mint_token_to_user(
                 "dscription": "Tallest mountain in charted solar system",
                 "copies": 1,
             },
-            "rarity": rarity,            
+            "rarity": rarity,       
+            "token_type": Some(token_type),
         })
         )?
         .gas(near_units::parse_gas!("300 T") as u64)
@@ -154,10 +157,15 @@ async fn test_upgradable() -> anyhow::Result<()> {
 
     let token_id = "nft".to_string();
     let rarity_1 = 1;
+    let token_type = "Armor".to_string();
 
     //Mint nft token to Alice
-    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0).await?;
+    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &0, &token_type).await?;
     println!("Nft_mint NFT to Alice outcome: {:#?}", res);
+
+    // Create types string
+    let mut token_types_map: TokenTypes = HashMap::new();
+    token_types_map.insert(TOKEN_TYPE.to_string(), token_type.clone());    
 
     let price_rarity1 = ONE_NEAR * 8;
 
@@ -165,7 +173,8 @@ async fn test_upgradable() -> anyhow::Result<()> {
     let res = nft_contract
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
-            json!({            
+            json!({        
+            "types": token_types_map,
             "rarity": rarity_1,
             "ft_token_id": near_ft(),
             "price": U128(price_rarity1)
@@ -212,7 +221,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Alice nft1 nft_view outcome: {:#?}", res);
+    println!("Alice nft nft_view outcome: {:#?}", res);
     assert_eq!(res[0]["token_id"], token_id);
     assert_eq!(res[0]["rarity"], rarity_1);
 
@@ -223,6 +232,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .call(&worker, "nft_set_upgrade_price")
         .args_json(
             json!({            
+            "types": token_types_map,            
             "rarity": rarity_2,
             "ft_token_id": ft_contract.id(),
             "price": price_in_ft
@@ -283,9 +293,42 @@ async fn test_upgradable() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Alice nft1 nft_view outcome: {:#?}", res);
+    println!("Alice nft nft_view outcome: {:#?}", res);
     assert_eq!(res[0]["token_id"], token_id);
     assert_eq!(res[0]["rarity"], rarity_2);
+    
+    //Remove upgrade price
+    let res = nft_contract
+        .call(&worker, "nft_remove_upgrade_price")
+        .args_json(
+            json!({            
+            "types": token_types_map,            
+            "rarity": rarity_2,            
+        })
+        )?
+        .gas(near_units::parse_gas!("300 T") as u64)
+        .transact().await?;
+
+    println!("Nft_remove_upgrade_price outcome: {:#?}", res);
+    assert!(res.is_success());
+    
+    let token_id = "nft2".to_string();    
+
+    //Mint nft2 rarity_1 token to Alice
+    let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice, &rarity_1, &token_type).await?;
+    println!("Nft_mint NFT to Alice outcome: {:#?}", res);
+    
+    //View upgrade price
+    let res: serde_json::Value = alice
+        .call(&worker, nft_contract.id(), "nft_upgrade_price")
+        .args_json(json!({
+            "token_id": token_id,    
+        }))?
+        .view().await?
+        .json()?;
+
+    println!("Nft_upgrade_price outcome: {:#?}", res);
+    assert_eq!(res, json!(None::<bool>));    
 
     Ok(())
 }
