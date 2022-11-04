@@ -15,10 +15,6 @@ pub trait ReferralCore {
     // get influencer address by account
     fn referral_by(&self, contract_id: AccountId, account_id: AccountId) -> Option<AccountId>;
 
-    fn referral_program_code(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<String>;
-
-    fn referral_code_info(&self, code: String) -> Option<ReferralInfo>;
-
     fn referral_program(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<ReferralProgram>;
 
     // create program for contract (by influencer)
@@ -35,11 +31,6 @@ pub trait ReferralCore {
         contract_id: AccountId,
         influencer_id: AccountId,
         program_id: ProgramId
-    );
-
-    fn referral_accept_code(
-        &mut self,
-        code: String,
     );
 
     fn referral_program_royalty(

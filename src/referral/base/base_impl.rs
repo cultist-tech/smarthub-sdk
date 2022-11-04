@@ -98,21 +98,6 @@ impl ReferralCore for ReferralFeature {
         self.internal_referral_by(&contract_id, &account_id)
     }
 
-    fn referral_program_code(
-        &self,
-        contract_id: ContractId,
-        influencer_id: InfluencerId,
-        program_id: ProgramId
-    ) -> Option<String> {
-        let id = get_program_id(&contract_id, &influencer_id, &program_id);
-
-        self.code_by_program.get(&id)
-    }
-
-    fn referral_code_info(&self, code: String) -> Option<ReferralInfo> {
-        self.info_by_code.get(&code)
-    }
-
     fn referral_program(&self, contract_id: ContractId, influencer_id: InfluencerId, program_id: ProgramId) -> Option<ReferralProgram> {
         let id = get_program_id(&contract_id, &influencer_id, &program_id);
 
@@ -158,20 +143,6 @@ impl ReferralCore for ReferralFeature {
             &contract_id,
             &influencer_id,
             &program_id,
-            &env::predecessor_account_id()
-        )
-    }
-
-    fn referral_accept_code(
-        &mut self,
-        code: String
-    ) {
-        let info: ReferralInfo = self.info_by_code.get(&code).expect("Not found referral program");
-
-        self.internal_accept_referral(
-            &info.contract_id,
-            &info.influencer_id,
-            &info.program_id,
             &env::predecessor_account_id()
         )
     }
