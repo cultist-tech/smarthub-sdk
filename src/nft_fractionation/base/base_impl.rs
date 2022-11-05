@@ -3,7 +3,7 @@ use near_sdk::borsh::{ self, BorshDeserialize, BorshSerialize };
 use near_sdk::collections::{ TreeMap, LookupMap, UnorderedSet };
 use near_sdk::json_types::U128;
 use crate::nft_fractionation::{ TokenId, FractionationId };
-use crate::nft_fractionation::base::NonFungibleTokenFractionation;
+use crate::nft_fractionation::base::FractionationCore;
 use crate::nft_fractionation::metadata::{ Fractionation, ContractFractionationId, ContractId };
 use crate::nft_fractionation::events::FractionationComplete;
 use crate::nft_fractionation::utils::contract_token_id;
@@ -45,48 +45,9 @@ impl NftFractionationFeature {
     }
 }
 
-impl NonFungibleTokenFractionation for NftFractionationFeature {
+impl FractionationCore for NftFractionationFeature {
     fn nft_fractionation(&self, contract_id: AccountId, token_id: TokenId) -> Option<Fractionation> {
         self.enum_fractionation(&contract_id, &token_id)
-    }
-
-    fn nft_fractionations(
-        &self,
-        contract_id: AccountId,
-        from_index: Option<U128>,
-        limit: Option<u64>
-    ) -> Vec<Fractionation> {
-        let arr = &self.fractionations_by_contract
-            .get(&contract_id)
-            .expect("No fractionations for contract!");
-
-        let start_index: u128 = from_index.map(From::from).unwrap_or_default();
-
-        if (arr.len() as u128) <= start_index {
-            return vec![];
-        }
-
-        let limit = limit.map(|v| v as usize).unwrap_or(usize::MAX);
-        require!(limit != 0, "Cannot provide limit of 0.");
-
-        let res = arr
-            .iter()
-            .skip(start_index as usize)
-            .take(limit)
-            .map(|token_id| self.enum_fractionation(&contract_id, &token_id).unwrap())
-            .collect();
-
-        res
-    }
-
-    fn nft_fractionations_supply(&self, contract_id: AccountId) -> U128 {
-        let count = if let Some(fractionations) = self.fractionations_by_contract.get(&contract_id) {
-            fractionations.len()
-        } else {
-            0
-        };
-
-        U128::from(count as u128)
     }
 
     fn nft_fractionation_complete(&mut self, contract_id: AccountId, token_id: FractionationId) {
