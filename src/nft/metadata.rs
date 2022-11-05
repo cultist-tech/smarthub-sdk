@@ -122,9 +122,3 @@ pub struct BurnerPrice {
     pub burning_rarity: TokenRarity,
     pub price: u8,
 }
-/*
-#[derive(Serialize, Deserialize, JsonSchema)]
-#[serde(crate = "near_sdk::serde")]
-pub struct BurnerUpdateArgs {
-    pub burning_tokens:Vec<TokenId>,
-}*/
