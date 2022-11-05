@@ -7,7 +7,7 @@ macro_rules! impl_non_fungible_token_fractionation {
 
         #[near_bindgen]
         impl NonFungibleTokenFractionation for $contract {
-          fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Fractionation {
+          fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Option<Fractionation> {
             self.$tokens.nft_fractionation(contract_id, token_id)
           }
           fn nft_fractionations(&self, contract_id: AccountId, from_index: Option<U128>, limit: Option<u64>) -> Vec<Fractionation> {

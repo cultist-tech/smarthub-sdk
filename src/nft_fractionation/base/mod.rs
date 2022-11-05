@@ -12,7 +12,7 @@ use crate::nft_fractionation::metadata::{ Fractionation, FractionationId };
 pub trait NonFungibleTokenFractionation {
     fn nft_fractionation_complete(&mut self, contract_id: AccountId, token_id: FractionationId);
 
-    fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Fractionation;
+    fn nft_fractionation(&self, contract_id: AccountId, token_id: FractionationId) -> Option<Fractionation>;
     fn nft_fractionations(
         &self,
         contract_id: AccountId,

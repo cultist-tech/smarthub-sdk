@@ -15,7 +15,7 @@ pub struct NftFractionationFeature {
     // get fractionation tokens
     pub fractionation_by_id: TreeMap<ContractFractionationId, UnorderedSet<TokenId>>,
     // get fractionations by contract
-    pub fractionations_by_contract: TreeMap<ContractId, UnorderedSet<FractionationId>>,    
+    pub fractionations_by_contract: TreeMap<ContractId, UnorderedSet<FractionationId>>,
     // tokens by owner
     pub tokens_per_owner: LookupMap<AccountId, TreeMap<ContractId, UnorderedSet<TokenId>>>,
 }
@@ -24,20 +24,20 @@ impl NftFractionationFeature {
     pub fn new<F1, F2, F3, T1>(
         fractionations_owners_prefix: F1,
         fractionation_prefix: F2,
-        fractionations_prefix: F3,        
+        fractionations_prefix: F3,
         tokens_per_owner_prefix: T1
     )
         -> Self
         where
             F1: IntoStorageKey,
             F2: IntoStorageKey,
-            F3: IntoStorageKey,            
+            F3: IntoStorageKey,
             T1: IntoStorageKey
     {
         let this = Self {
             fractionations_owners: LookupMap::new(fractionations_owners_prefix),
             fractionation_by_id: TreeMap::new(fractionation_prefix),
-            fractionations_by_contract: TreeMap::new(fractionations_prefix),            
+            fractionations_by_contract: TreeMap::new(fractionations_prefix),
             tokens_per_owner: LookupMap::new(tokens_per_owner_prefix),
         };
 
@@ -46,7 +46,7 @@ impl NftFractionationFeature {
 }
 
 impl NonFungibleTokenFractionation for NftFractionationFeature {
-    fn nft_fractionation(&self, contract_id: AccountId, token_id: TokenId) -> Fractionation {
+    fn nft_fractionation(&self, contract_id: AccountId, token_id: TokenId) -> Option<Fractionation> {
         self.enum_fractionation(&contract_id, &token_id)
     }
 
@@ -73,7 +73,7 @@ impl NonFungibleTokenFractionation for NftFractionationFeature {
             .iter()
             .skip(start_index as usize)
             .take(limit)
-            .map(|token_id| self.enum_fractionation(&contract_id, &token_id))
+            .map(|token_id| self.enum_fractionation(&contract_id, &token_id).unwrap())
             .collect();
 
         res
@@ -112,7 +112,7 @@ impl NonFungibleTokenFractionation for NftFractionationFeature {
         self.internal_remove_fractionation(&contract_id, &token_id);
 
         // transfer new token
-        self.internal_call_nft_transfer(&contract_id, &token_id, &signer_id);        
+        self.internal_call_nft_transfer(&contract_id, &token_id, &signer_id);
 
         (FractionationComplete {
             contract_id: &contract_id,

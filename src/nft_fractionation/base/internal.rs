@@ -68,14 +68,18 @@ impl NftFractionationFeature {
         &self,
         contract_id: &AccountId,
         fractionation_id: &FractionationId
-    ) -> Fractionation {
+    ) -> Option<Fractionation> {
         let id = contract_token_id(&contract_id, &fractionation_id);
-        let entries = self.fractionation_by_id.get(&id).expect("Not found fractionation");
-        
-        Fractionation {
-            contract_id: contract_id.clone(),
-            token_id: fractionation_id.clone(),
-            entries: entries.to_vec(),            
+        let entries = self.fractionation_by_id.get(&id);
+
+        if let Some(entries) = entries {
+            Some(Fractionation {
+                contract_id: contract_id.clone(),
+                token_id: fractionation_id.clone(),
+                entries: entries.to_vec(),
+            })
+        } else {
+            None
         }
     }
 
@@ -156,7 +160,7 @@ impl NftFractionationFeature {
         Fractionation {
             contract_id: contract_id.clone(),
             token_id: token_id.clone(),
-            entries: entries.clone(),            
+            entries: entries.clone(),
         }
     }
 
@@ -175,7 +179,7 @@ impl NftFractionationFeature {
                 token_id.clone(),
                 None,
                 Some("Received by fractionation".to_string())
-            );        
+            );
     }
 
     pub fn internal_add_token_to_user(
@@ -199,7 +203,7 @@ impl NftFractionationFeature {
         owner_contracts.insert(&contract_id, &tokens);
 
         self.tokens_per_owner.insert(&account_id, &owner_contracts);
-    }    
+    }
 
     pub fn internal_on_nft_transfer(
         &mut self,
@@ -219,10 +223,10 @@ impl NftFractionationFeature {
             );
         } else {
             self.internal_add_token_to_user(&contract_id, &token_id, &owner_id);
-            
+
             (FractionationProcess {
                 token_id: &token_id,
-                contract_id: &contract_id,                
+                contract_id: &contract_id,
                 account_id: &owner_id,
             }).emit();
         }
