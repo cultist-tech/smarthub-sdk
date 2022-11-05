@@ -15,6 +15,10 @@ pub const TOKEN_COLLECTION: &str = "token_collection";
 pub const TOKEN_TYPE: &str = "toke_type";
 pub const TOKEN_SUB_TYPE: &str = "token_sub_type";
 
+pub type TokenRarity = u8;
+
+pub const RARITY_MAX: u8 = 6;
+
 /// In this implementation, the Token struct takes two extensions standards (metadata and approval) as optional fields, as they are frequently used in modern NFTs.
 #[derive(
     BorshDeserialize,
@@ -46,5 +50,3 @@ pub struct Token {
     pub rarity: Option<TokenRarity>,
     pub types: Option<TokenTypes>,
 }
-
-pub type TokenRarity = u8;

@@ -4,7 +4,7 @@ use near_sdk::{ AccountId, require };
 use near_sdk::serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 
-use crate::nft::TokenId;
+use crate::nft::{ TokenId, TokenRarity };
 
 /// This spec can be treated like a version of the standard.
 pub const NFT_METADATA_SPEC: &str = "nft-1.0.0";
@@ -106,3 +106,25 @@ pub struct UpgradePrice {
 pub struct UpdateOnFtTransferArgs {
     pub token_id: TokenId,
 }
+
+#[derive(
+    BorshDeserialize,
+    BorshSerialize,
+    Serialize,
+    Deserialize,
+    Clone,
+    Debug,
+    PartialEq,
+    JsonSchema
+)]
+#[serde(crate = "near_sdk::serde")]
+pub struct BurnerPrice {
+    pub burning_rarity: TokenRarity,
+    pub price: u8,
+}
+/*
+#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(crate = "near_sdk::serde")]
+pub struct BurnerUpdateArgs {
+    pub burning_tokens:Vec<TokenId>,
+}*/

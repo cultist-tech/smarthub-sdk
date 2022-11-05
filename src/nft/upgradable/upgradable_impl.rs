@@ -7,14 +7,13 @@ use crate::nft::{
     TokenTypes,
     UpdateOnFtTransferArgs,
     TOKEN_TYPE,
+    RARITY_MAX
 };
 use crate::nft::metadata::UpgradePrice;
 use crate::nft::upgradable::NonFungibleTokenUpgradable;
 use crate::nft::events::NftUpgrade;
 use crate::nft::utils::{ upgrade_key, types_str };
 use crate::utils::near_ft;
-
-const RARITY_MAX: u8 = 6;
 
 impl NonFungibleToken {
     pub fn internal_upgrade_token(&mut self, token_id: &TokenId, owner_id: &AccountId) {
