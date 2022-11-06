@@ -12,7 +12,7 @@ pub type TokenId = String;
 pub type TokenTypes = HashMap<String, String>;
 
 pub const TOKEN_COLLECTION: &str = "token_collection";
-pub const TOKEN_TYPE: &str = "toke_type";
+pub const TOKEN_TYPE: &str = "token_type";
 pub const TOKEN_SUB_TYPE: &str = "token_sub_type";
 
 pub type TokenRarity = u8;

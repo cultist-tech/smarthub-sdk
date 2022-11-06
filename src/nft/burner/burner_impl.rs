@@ -1,7 +1,7 @@
-use crate::nft::{ NonFungibleToken, TokenId, TokenRarity, TokenTypes, BurnerPrice, RARITY_MAX };
+use crate::nft::{ NonFungibleToken, TokenId, TokenRarity, TokenTypes, BurnerPrice, RARITY_MAX, PriceType };
 use crate::nft::burner::NonFungibleTokenBurner;
 use crate::nft::utils::{ upgrade_key, types_str };
-use crate::nft::events::{ NftSetBurnerPrice, NftRemoveBurnerPrice };
+use crate::nft::events::{ NftSetBurnerPrice, NftRemoveUpgradePrice };
 
 impl NonFungibleToken {
     pub fn internal_burner_price(&self, token_id: &TokenId) -> Option<BurnerPrice> {
@@ -29,7 +29,7 @@ impl NonFungibleToken {
         let upgrade_key = upgrade_key(&types_str, rarity);
 
         self.burner_upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
-        
+
         (NftSetBurnerPrice {
             rarity: &rarity,
             types: &types,
@@ -53,10 +53,12 @@ impl NonFungibleTokenBurner for NonFungibleToken {
             burning_tokens.len(),
             price.amount
         );
-        
+
         burning_tokens.iter().for_each(|burning_token_id| {
+            let rarity = self.token_rarity_by_id.as_ref().unwrap().get(&burning_token_id).unwrap();
+
             assert_eq!(
-                self.token_rarity_by_id.as_ref().unwrap().get(&burning_token_id).unwrap(),
+                rarity,
                 price.burning_rarity,
                 "Burning tokens must have price defined rarity"
             );
@@ -93,10 +95,11 @@ impl NonFungibleTokenBurner for NonFungibleToken {
             self.burner_upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(),
             "Price was not set"
         );
-        
-        (NftRemoveBurnerPrice {
+
+        (NftRemoveUpgradePrice {
+            price_type: &PriceType::Burner,
             rarity: &rarity,
-            types: &types,            
+            types: &types,
         }).emit();
     }
 

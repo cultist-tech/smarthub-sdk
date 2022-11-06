@@ -14,7 +14,7 @@
 //! or [`NftBurn::emit_many`] respectively.
 
 use crate::event::NearEvent;
-use crate::nft::{Token, TokenId, TokenRarity, TokenTypes};
+use crate::nft::{Token, TokenId, TokenRarity, TokenTypes, PriceType};
 use near_sdk::json_types::U128;
 use near_sdk::AccountId;
 use serde::Serialize;
@@ -199,23 +199,6 @@ impl NftSetUpgradePrice<'_> {
 
 #[must_use]
 #[derive(Serialize, Debug, Clone)]
-pub struct NftRemoveUpgradePrice<'a> {  
-  pub rarity: &'a TokenRarity,
-  pub types: &'a Option<TokenTypes>,  
-}
-
-impl NftRemoveUpgradePrice<'_> {
-  pub fn emit(self) {
-    Self::emit_many(&[self])
-  }
-
-  pub fn emit_many(data: &[NftRemoveUpgradePrice<'_>]) {
-    new_171_v1(Nep171EventKind::NftRemoveUpgradePrice(data)).emit()
-  }
-}
-
-#[must_use]
-#[derive(Serialize, Debug, Clone)]
 pub struct NftSetBurnerPrice<'a> {  
   pub rarity: &'a TokenRarity,
   pub types: &'a Option<TokenTypes>,
@@ -235,18 +218,19 @@ impl NftSetBurnerPrice<'_> {
 
 #[must_use]
 #[derive(Serialize, Debug, Clone)]
-pub struct NftRemoveBurnerPrice<'a> {  
+pub struct NftRemoveUpgradePrice<'a> {
+  pub price_type: &'a PriceType,
   pub rarity: &'a TokenRarity,
   pub types: &'a Option<TokenTypes>,  
 }
 
-impl NftRemoveBurnerPrice<'_> {
+impl NftRemoveUpgradePrice<'_> {
   pub fn emit(self) {
     Self::emit_many(&[self])
   }
 
-  pub fn emit_many(data: &[NftRemoveBurnerPrice<'_>]) {
-    new_171_v1(Nep171EventKind::NftRemoveBurnerPrice(data)).emit()
+  pub fn emit_many(data: &[NftRemoveUpgradePrice<'_>]) {
+    new_171_v1(Nep171EventKind::NftRemoveUpgradePrice(data)).emit()
   }
 }
 
@@ -271,9 +255,8 @@ enum Nep171EventKind<'a> {
     NftTransferPayout(&'a [NftTransferPayout<'a>]),
     NftUpgrade(&'a [NftUpgrade<'a>]),
     NftSetUpgradePrice(&'a [NftSetUpgradePrice<'a>]),
-    NftRemoveUpgradePrice(&'a [NftRemoveUpgradePrice<'a>]),
-    NftSetBurnerPrice(&'a [NftSetBurnerPrice<'a>]),
-    NftRemoveBurnerPrice(&'a [NftRemoveBurnerPrice<'a>]),
+    NftSetBurnerPrice(&'a [NftSetBurnerPrice<'a>]),  
+    NftRemoveUpgradePrice(&'a [NftRemoveUpgradePrice<'a>]),      
 }
 
 fn new_171<'a>(version: &'static str, event_kind: Nep171EventKind<'a>) -> NearEvent<'a> {

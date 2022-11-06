@@ -7,7 +7,8 @@ use crate::nft::{
     TokenTypes,
     UpdateOnFtTransferArgs,
     TOKEN_TYPE,
-    RARITY_MAX
+    RARITY_MAX,
+    PriceType
 };
 use crate::nft::metadata::UpgradePrice;
 use crate::nft::upgradable::NonFungibleTokenUpgradable;
@@ -172,6 +173,7 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
         assert!(self.upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(), "Price was not set");    
         
         (NftRemoveUpgradePrice {
+            price_type: &PriceType::Upgradable, 
             rarity: &rarity,
             types: &types,            
         }).emit();
