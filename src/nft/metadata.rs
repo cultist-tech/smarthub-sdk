@@ -107,21 +107,7 @@ pub struct UpdateOnFtTransferArgs {
     pub token_id: TokenId,
 }
 
-#[derive(
-    BorshDeserialize,
-    BorshSerialize,
-    Serialize,
-    Deserialize,
-    Clone,
-    Debug,
-    PartialEq,
-    JsonSchema
-)]
-#[serde(crate = "near_sdk::serde")]
-pub struct BurnerPrice {
-    pub burning_rarity: TokenRarity,
-    pub amount: u8,
-}
+pub type BurnerPrice = u8;
 
 #[derive(    
     Serialize,

@@ -33,8 +33,7 @@ impl NonFungibleToken {
         (NftSetBurnerPrice {
             rarity: &rarity,
             types: &types,
-            burning_rarity: &price.burning_rarity,
-            amount: &price.amount,
+            burning_rarity_sum: &price,            
         }).emit();
     }
 }
@@ -47,23 +46,21 @@ impl NonFungibleTokenBurner for NonFungibleToken {
             .internal_burner_price(&token_id)
             .expect("There is no price for burner upgrade");
 
-        assert!(
-            (burning_tokens.len() as u8) == price.amount,
-            "Deposit tokens number is too small. Attached: {}, Required: {}",
-            burning_tokens.len(),
-            price.amount
-        );
+        let mut provided_rarity_sum = 0;
 
         burning_tokens.iter().for_each(|burning_token_id| {
+            
+            self.assert_token_holder(&burning_token_id);
+            
             let rarity = self.token_rarity_by_id.as_ref().unwrap().get(&burning_token_id).unwrap();
-
-            assert_eq!(
-                rarity,
-                price.burning_rarity,
-                "Burning tokens must have price defined rarity"
-            );
-
-            self.internal_burn_token(&owner_id, &burning_token_id);
+            
+            provided_rarity_sum += rarity + 1;
+        });
+        
+        assert_eq!(provided_rarity_sum, price, "Provided burning tokens rarity sum is not equal to upgrade price");
+        
+        burning_tokens.iter().for_each(|burning_token_id| {
+            self.internal_burn_token_unguarded(&owner_id, &burning_token_id);
         });
 
         self.internal_upgrade_token(&token_id, &owner_id);
@@ -72,18 +69,12 @@ impl NonFungibleTokenBurner for NonFungibleToken {
     fn nft_set_burner_upgrade_price(
         &mut self,
         types: Option<TokenTypes>,
-        rarity: TokenRarity,
-        amount: u8,
-        burning_rarity: TokenRarity
+        rarity: TokenRarity,       
+        burning_rarity_sum: u8,
     ) {
         assert!(rarity <= RARITY_MAX, "Given rarity is more then assumpted!");
 
-        let upgrade_price = BurnerPrice {
-            burning_rarity,
-            amount,
-        };
-
-        self.internal_set_burner_price(&types, &rarity, &upgrade_price);
+        self.internal_set_burner_price(&types, &rarity, &burning_rarity_sum);
     }
 
     fn nft_remove_burner_upgrade_price(&mut self, types: Option<TokenTypes>, rarity: TokenRarity) {

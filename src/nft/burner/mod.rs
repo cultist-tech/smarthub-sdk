@@ -14,8 +14,7 @@ pub trait NonFungibleTokenBurner {
         &mut self,
         types: Option<TokenTypes>,
         rarity: TokenRarity,
-        amount: u8,
-        burning_rarity: TokenRarity
+        burning_rarity_sum: u8,
     );
 
     fn nft_remove_burner_upgrade_price(&mut self, types: Option<TokenTypes>, rarity: TokenRarity);

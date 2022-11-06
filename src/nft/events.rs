@@ -202,8 +202,7 @@ impl NftSetUpgradePrice<'_> {
 pub struct NftSetBurnerPrice<'a> {  
   pub rarity: &'a TokenRarity,
   pub types: &'a Option<TokenTypes>,
-  pub burning_rarity: &'a u8,
-  pub amount: &'a u8,
+  pub burning_rarity_sum: &'a u8,  
 }
 
 impl NftSetBurnerPrice<'_> {
