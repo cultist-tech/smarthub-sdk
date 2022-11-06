@@ -56,7 +56,7 @@ async fn mint_token_to_user(
 }
 
 #[tokio::test]
-async fn test_upgradable() -> anyhow::Result<()> {
+async fn test_burner() -> anyhow::Result<()> {
     let worker = workspaces::sandbox().await?;
 
     let nft_wasm = std::fs::read(NFT_WASM_FILEPATH)?;
@@ -90,7 +90,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
     token_types_map.insert(TOKEN_TYPE.to_string(), token_type.clone());    
     
     let rarity_0 = 0;
-    let price_in_nft = 2;
+    let amount_in_nft = 2;
 
     //Set burner upgrade price
     let res = nft_contract
@@ -99,7 +99,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
             json!({        
             "types": token_types_map,
             "rarity": rarity_1,
-            "price": price_in_nft,
+            "amount": amount_in_nft,
             "burning_rarity": rarity_0,            
         })
         )?
@@ -120,7 +120,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
 
     println!("Nft_burner_upgrade_price outcome: {:#?}", res);
     assert_eq!(res["burning_rarity"], rarity_0);
-    assert_eq!(res["price"], price_in_nft);
+    assert_eq!(res["amount"], amount_in_nft);
     
     let burning_tokens = vec!(token_id_to_burn1.clone(), token_id_to_burn2.clone());
 
@@ -175,7 +175,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
     assert_eq!(res, json!(None::<bool>));
 
     let rarity_2 = 2;
-    let price_in_nft_rarity1 = 3;
+    let amount_in_nft_rarity1 = 3;
 
     //Set upgrade price for rarity 2
     let res = nft_contract
@@ -184,7 +184,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
             json!({            
             "types": token_types_map,            
             "rarity": rarity_2,
-            "price": price_in_nft_rarity1,
+            "amount": amount_in_nft_rarity1,
             "burning_rarity": rarity_1
         })
         )?
@@ -205,7 +205,7 @@ async fn test_upgradable() -> anyhow::Result<()> {
 
     println!("Nft_upgrade_price outcome: {:#?}", res);
     assert_eq!(res["burning_rarity"], rarity_1);
-    assert_eq!(res["price"], price_in_nft_rarity1);
+    assert_eq!(res["amount"], amount_in_nft_rarity1);
         
     //Remove burner upgrade price
     let res = nft_contract

@@ -12,9 +12,9 @@ macro_rules! impl_non_fungible_token_burner {
                 self.$tokens.nft_burner_upgrade(token_id,burning_tokens)
             }
             
-            fn nft_set_burner_upgrade_price(&mut self, types: Option<mfight_sdk::nft::TokenTypes>, rarity: mfight_sdk::nft::TokenRarity,  price: u8, burning_rarity: mfight_sdk::nft::TokenRarity) {
+            fn nft_set_burner_upgrade_price(&mut self, types: Option<mfight_sdk::nft::TokenTypes>, rarity: mfight_sdk::nft::TokenRarity,  amount: u8, burning_rarity: mfight_sdk::nft::TokenRarity) {
                 self.$assert_owner();
-                self.$tokens.nft_set_burner_upgrade_price(types, rarity, price, burning_rarity)
+                self.$tokens.nft_set_burner_upgrade_price(types, rarity, amount, burning_rarity)
             }
             
             fn nft_remove_burner_upgrade_price(&mut self, types: Option< mfight_sdk::nft::TokenTypes>, rarity: mfight_sdk::nft::TokenRarity) {

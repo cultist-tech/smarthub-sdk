@@ -1,7 +1,7 @@
 use crate::nft::{ NonFungibleToken, TokenId, TokenRarity, TokenTypes, BurnerPrice, RARITY_MAX };
 use crate::nft::burner::NonFungibleTokenBurner;
-use crate::nft::utils::upgrade_key;
-use crate::nft::utils::types_str;
+use crate::nft::utils::{ upgrade_key, types_str };
+use crate::nft::events::{ NftSetBurnerPrice, NftRemoveBurnerPrice };
 
 impl NonFungibleToken {
     pub fn internal_burner_price(&self, token_id: &TokenId) -> Option<BurnerPrice> {
@@ -29,6 +29,13 @@ impl NonFungibleToken {
         let upgrade_key = upgrade_key(&types_str, rarity);
 
         self.burner_upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
+        
+        (NftSetBurnerPrice {
+            rarity: &rarity,
+            types: &types,
+            burning_rarity: &price.burning_rarity,
+            amount: &price.amount,
+        }).emit();
     }
 }
 
@@ -41,12 +48,12 @@ impl NonFungibleTokenBurner for NonFungibleToken {
             .expect("There is no price for burner upgrade");
 
         assert!(
-            (burning_tokens.len() as u8) == price.price,
+            (burning_tokens.len() as u8) == price.amount,
             "Deposit tokens number is too small. Attached: {}, Required: {}",
             burning_tokens.len(),
-            price.price
+            price.amount
         );
-
+        
         burning_tokens.iter().for_each(|burning_token_id| {
             assert_eq!(
                 self.token_rarity_by_id.as_ref().unwrap().get(&burning_token_id).unwrap(),
@@ -64,14 +71,14 @@ impl NonFungibleTokenBurner for NonFungibleToken {
         &mut self,
         types: Option<TokenTypes>,
         rarity: TokenRarity,
-        price: u8,
+        amount: u8,
         burning_rarity: TokenRarity
     ) {
         assert!(rarity <= RARITY_MAX, "Given rarity is more then assumpted!");
 
         let upgrade_price = BurnerPrice {
             burning_rarity,
-            price,
+            amount,
         };
 
         self.internal_set_burner_price(&types, &rarity, &upgrade_price);
@@ -86,6 +93,11 @@ impl NonFungibleTokenBurner for NonFungibleToken {
             self.burner_upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(),
             "Price was not set"
         );
+        
+        (NftRemoveBurnerPrice {
+            rarity: &rarity,
+            types: &types,            
+        }).emit();
     }
 
     fn nft_burner_upgrade_price(&self, token_id: TokenId) -> Option<BurnerPrice> {

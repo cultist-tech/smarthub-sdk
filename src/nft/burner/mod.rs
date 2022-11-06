@@ -14,7 +14,7 @@ pub trait NonFungibleTokenBurner {
         &mut self,
         types: Option<TokenTypes>,
         rarity: TokenRarity,
-        price: u8,
+        amount: u8,
         burning_rarity: TokenRarity
     );
 

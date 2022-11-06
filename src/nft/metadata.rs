@@ -120,5 +120,5 @@ pub struct UpdateOnFtTransferArgs {
 #[serde(crate = "near_sdk::serde")]
 pub struct BurnerPrice {
     pub burning_rarity: TokenRarity,
-    pub price: u8,
+    pub amount: u8,
 }
