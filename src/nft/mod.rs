@@ -12,6 +12,7 @@ pub use self::payout::NonFungibleTokenPayout;
 pub use self::reveal::NonFungibleTokenReveal;
 pub use self::royalty::{NonFungibleTokenRoyalty, Payout, Royalty};
 pub use self::upgradable::NonFungibleTokenUpgradable;
+pub use self::burner::NonFungibleTokenBurner;
 pub use self::token::*;
 
 // ==========
@@ -35,3 +36,4 @@ pub mod reveal;
 pub mod bind_to_owner;
 pub mod royalty;
 pub mod upgradable;
+pub mod burner;

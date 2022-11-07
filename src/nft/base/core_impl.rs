@@ -2,7 +2,7 @@ use super::resolver::NonFungibleTokenResolver;
 use crate::nft::bind_to_owner::BindToOwnerFeature;
 use crate::nft::base::receiver::ext_receiver;
 use crate::nft::base::NonFungibleTokenCore;
-use crate::nft::metadata::{ TokenMetadata, UpgradeKey, UpgradePrice };
+use crate::nft::metadata::{ TokenMetadata, UpgradeKey, UpgradePrice, BurnerPrice };
 use crate::nft::token::{ Token, TokenId };
 use crate::nft::utils::{ hash_account_id, refund_approved_account_ids };
 use crate::nft::royalty::RoyaltyFeature;
@@ -96,10 +96,12 @@ pub struct NonFungibleToken {
 
   // required by upgrade extension
   pub upgrade_prices: Option<LookupMap<UpgradeKey, UpgradePrice>>,
+  pub burner_upgrade_prices: Option<LookupMap<UpgradeKey, BurnerPrice>>,
+  
 }
 
 impl NonFungibleToken {
-    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, U1>(
+    pub fn new<Q, R, S, T, R1, B, RM, RT, RTM, E1, E2, U1, U2>(
         owner_by_id_prefix: Q,
         token_metadata_prefix: Option<R>,
         enumeration_prefix: Option<S>,
@@ -117,6 +119,7 @@ impl NonFungibleToken {
         token_types_prefix: Option<E2>,
 
         upgrade_prefix: Option<U1>,
+        burner_prefix: Option<U2>,
     )
         -> Self
         where
@@ -131,7 +134,8 @@ impl NonFungibleToken {
             RTM: IntoStorageKey,
             E1: IntoStorageKey,
             E2: IntoStorageKey,            
-            U1: IntoStorageKey
+            U1: IntoStorageKey,
+            U2: IntoStorageKey
     {
         let (approvals_by_id, next_approval_id_by_id) = if let Some(prefix) = approval_prefix {
             let prefix: Vec<u8> = prefix.into_storage_key();
@@ -161,6 +165,7 @@ impl NonFungibleToken {
             token_types_by_id: token_types_prefix.map(LookupMap::new),
 
             upgrade_prices: upgrade_prefix.map(LookupMap::new),
+            burner_upgrade_prices: burner_prefix.map(LookupMap::new),
         };
         this.measure_min_token_storage_cost();
         this

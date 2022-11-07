@@ -7,14 +7,14 @@ use crate::nft::{
     TokenTypes,
     UpdateOnFtTransferArgs,
     TOKEN_TYPE,
+    RARITY_MAX,
+    PriceType
 };
 use crate::nft::metadata::UpgradePrice;
 use crate::nft::upgradable::NonFungibleTokenUpgradable;
-use crate::nft::events::NftUpgrade;
+use crate::nft::events::{ NftUpgrade, NftSetUpgradePrice, NftRemoveUpgradePrice };
 use crate::nft::utils::{ upgrade_key, types_str };
 use crate::utils::near_ft;
-
-const RARITY_MAX: u8 = 6;
 
 impl NonFungibleToken {
     pub fn internal_upgrade_token(&mut self, token_id: &TokenId, owner_id: &AccountId) {
@@ -69,6 +69,13 @@ impl NonFungibleToken {
         let upgrade_key = upgrade_key(&types_str, rarity);
 
         self.upgrade_prices.as_mut().unwrap().insert(&upgrade_key, &price);
+        
+        (NftSetUpgradePrice {
+            rarity: &rarity,
+            types: &types,
+            ft_token: &price.ft_token_id,
+            price: &U128(price.price),
+        }).emit();
     }
 
     pub fn internal_on_ft_transfer(
@@ -163,7 +170,13 @@ impl NonFungibleTokenUpgradable for NonFungibleToken {
          
         let upgrade_key = upgrade_key(&types_str, &rarity);
          
-        assert!(self.upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(), "Price was not set");                  
+        assert!(self.upgrade_prices.as_mut().unwrap().remove(&upgrade_key).is_some(), "Price was not set");    
+        
+        (NftRemoveUpgradePrice {
+            price_type: &PriceType::Upgradable, 
+            rarity: &rarity,
+            types: &types,            
+        }).emit();
     }
 
 
