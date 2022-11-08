@@ -73,6 +73,7 @@ macro_rules! impl_market_core {
             sale: Sale,
             price: U128,
           ) -> U128 {
+            self.reputation.internal_add_reputation(&buyer_id, &BUY_INCREMENT);
             self.$tokens.market_resolve_purchase(ft_token_id, buyer_id, sale, price)
           }
 
