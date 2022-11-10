@@ -10,8 +10,13 @@ use crate::nft::base::external::{ ext_nft };
 use crate::ft::base::external::{ ext_ft };
 use crate::nft::royalty::Payout;
 use crate::metadata::FungibleTokenId;
+use crate::reputation::{ ReputationFeature, SALE_INCREMENT, BUY_INCREMENT };
 
 // TODO check seller supports storage_deposit at ft_token_id they want to post sale in
+
+pub const MARKET_BASE_FEE: u16 = 300;
+pub const MARKET_REDUCED_FEE: u16 = 200;
+pub const MARKET_MIN_FEE: u16 = 100;
 
 pub(crate) const GAS_FOR_FT_TRANSFER: Gas = Gas(5_000_000_000_000);
 /// greedy max Tgas for resolve_purchase
@@ -35,6 +40,7 @@ pub struct MarketFeature {
     pub ft_token_ids: UnorderedSet<AccountId>,
     pub storage_deposits: LookupMap<AccountId, Balance>,
     pub bid_history_length: u8,
+    pub reputation: Option<ReputationFeature>,
 }
 
 /// Helper structure to for keys of the persistent collections.
@@ -54,7 +60,7 @@ pub enum StorageKey {
 }
 
 impl MarketFeature {
-    pub fn new<M1, M2, M3, M4, M5>(
+    pub fn new<M1, M2, M3, M4, M5, M6>(
         owner_id: AccountId,
         ft_token_ids: Option<Vec<FungibleTokenId>>,
         bid_history_length: Option<u8>,
@@ -62,7 +68,8 @@ impl MarketFeature {
         by_owner_prefix: M2,
         by_contract_prefix: M3,
         ft_tokens_prefix: M4,
-        storage_prefix: M5
+        storage_prefix: M5,
+        reputation_prefix: Option<M6>,
     )
         -> Self
         where
@@ -70,7 +77,8 @@ impl MarketFeature {
             M2: IntoStorageKey,
             M3: IntoStorageKey,
             M4: IntoStorageKey,
-            M5: IntoStorageKey
+            M5: IntoStorageKey,
+            M6: IntoStorageKey,
     {
         let mut this = Self {
             owner_id: owner_id.into(),
@@ -80,6 +88,7 @@ impl MarketFeature {
             ft_token_ids: UnorderedSet::new(ft_tokens_prefix),
             storage_deposits: LookupMap::new(storage_prefix),
             bid_history_length: bid_history_length.unwrap_or(BID_HISTORY_LENGTH_DEFAULT),
+            reputation: reputation_prefix.map(ReputationFeature::new),
         };
         // support NEAR by default
         this.ft_token_ids.insert(&near_ft());
@@ -178,6 +187,10 @@ impl MarketCore for MarketFeature {
 
         let deposit = env::attached_deposit();
         assert!(deposit > 0, "Attached deposit must be greater than 0");
+        
+        let fee = self.internal_market_fee(&price, &buyer_id);
+        
+        let deposit = deposit - fee;
 
         if !sale.is_auction && deposit == price {
             self.market_process_purchase(
@@ -344,6 +357,11 @@ impl MarketCore for MarketFeature {
         };
         // Going to payout everyone, first return all outstanding bids (accepted offer bid was already removed)
         self.refund_all_bids(&sale.bids);
+        
+        if self.reputation.is_some() {                
+            self.reputation.as_mut().unwrap().internal_add_reputation(&sale.owner_id, &SALE_INCREMENT);
+            self.reputation.as_mut().unwrap().internal_add_reputation(&buyer_id, &BUY_INCREMENT);
+        }           
 
         // NEAR payouts
         if ft_token_id == near_ft() {
@@ -380,7 +398,7 @@ impl MarketCore for MarketFeature {
                 payout: &payout.payout,
                 ft_token_id: &ft_token_id,
                 price: &price,
-            }).emit();
+            }).emit();        
 
             // keep all FTs (already transferred for payouts)
             U128(0)

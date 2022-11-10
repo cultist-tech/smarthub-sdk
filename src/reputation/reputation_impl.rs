@@ -1,9 +1,9 @@
-use near_sdk::{ env, AccountId };
+use near_sdk::{ env, AccountId, IntoStorageKey };
 use near_sdk::collections::LookupMap;
 use near_sdk::borsh::{ self, BorshDeserialize, BorshSerialize };
 use crate::reputation::ContractReputation;
 
-const MAX_REPUTATION: u32 = 100_000;
+pub const MAX_REPUTATION: u32 = 100_000;
 const MIN_REPUTATION: u32 = 0;
 
 pub const BUY_INCREMENT: u32 = 10;
@@ -15,9 +15,7 @@ pub struct ReputationFeature {
 }
 
 impl ReputationFeature {
-    pub fn new() -> Self {
-        let prefix = b"REPUTATION_FEATURE".to_vec();
-        
+    pub fn new<R>(prefix: R) -> Self  where R: IntoStorageKey{     
         let this = Self {
             reputation_by_id: LookupMap::new(prefix),
         };
@@ -69,10 +67,14 @@ impl ReputationFeature {
         
         MIN_REPUTATION
     }
+    
+    pub fn internal_reputation(&self, account_id: &AccountId) -> u32 {
+        self.reputation_by_id.get(&account_id).unwrap_or_else(|| 0)
+    }
 }
 
 impl ContractReputation for ReputationFeature {
     fn reputation(&self, account_id: AccountId) -> u32 {
-        self.reputation_by_id.get(&account_id).unwrap_or_else(|| 0)
+        self.internal_reputation(&account_id)
     }
 }

@@ -151,9 +151,41 @@ async fn test_reputation() -> anyhow::Result<()> {
         .transact().await?;
 
     println!("Nft_approve NFT outcome: {:#?}", res);
-    assert!(res.is_success());
+    assert!(res.is_success());   
     
-    //Check reputation after sale
+    //Check Bobs reputation before sale
+    let res: serde_json::Value = market_contract
+        .call(&worker, "reputation")
+        .args_json(json!({
+            "account_id": bob.id(),
+        }))?
+        .view().await?
+        .json()?;
+
+    println!("Bob reputation before by outcome: {:#?}", res);
+    assert_eq!(res, 0);   
+    
+    let fee = PRICE * 300u128/10_000u128; 
+    
+    let price_and_fee = PRICE + fee;    
+    
+    //Buy nft from market
+    let res = bob
+        .call(&worker, market_contract.id(), "market_offer")
+        .args_json(
+            json!({        
+            "nft_contract_id": nft_contract.id(),
+            "token_id": token_id,                           
+        })
+        )?
+        .deposit(price_and_fee)
+        .gas(near_units::parse_gas!("300 T") as u64)
+        .transact().await?;
+
+    println!("Market_offer NFT outcome: {:#?}", res);
+    assert!(res.is_success());    
+    
+     //Check Alice reputation after sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
         .args_json(json!({
@@ -165,35 +197,7 @@ async fn test_reputation() -> anyhow::Result<()> {
     println!("Alice reputation after sale outcome: {:#?}", res);
     assert_eq!(res, SALE_INCREMENT);
     
-    //Check Bobs reputation before buy
-    let res: serde_json::Value = market_contract
-        .call(&worker, "reputation")
-        .args_json(json!({
-            "account_id": bob.id(),
-        }))?
-        .view().await?
-        .json()?;
-
-    println!("Bob reputation before by outcome: {:#?}", res);
-    assert_eq!(res, 0);
-    
-    //Buy nft from market
-    let res = bob
-        .call(&worker, market_contract.id(), "market_offer")
-        .args_json(
-            json!({        
-            "nft_contract_id": nft_contract.id(),
-            "token_id": token_id,                           
-        })
-        )?
-        .deposit(PRICE)
-        .gas(near_units::parse_gas!("300 T") as u64)
-        .transact().await?;
-
-    println!("Market_offer NFT outcome: {:#?}", res);
-    assert!(res.is_success());
-    
-    //Check reputation after buy
+    //Check Bob reputation after sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
         .args_json(json!({
