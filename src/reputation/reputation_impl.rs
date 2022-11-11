@@ -25,47 +25,42 @@ impl ReputationFeature {
 
     pub fn internal_add_reputation(&mut self, account_id: &AccountId, amount: &u32) -> u32 {
         let reputations = &mut self.reputation_by_id;
-        if let Some(reputation) = reputations.get(&account_id) {
         
-            if reputation < MAX_REPUTATION {
-                let increased_reputation = reputation + amount;
-                
-                if increased_reputation < MAX_REPUTATION {
-                    reputations.insert(&account_id, &increased_reputation);
-                    return increased_reputation;
-                } else {
-                    reputations.insert(&account_id, &MAX_REPUTATION);
-                    return MAX_REPUTATION;
-                }
-            }    
-            return MAX_REPUTATION;            
-        }
-
-        reputations.insert(&account_id, &amount);
+        let next_reputation = if let Some(reputation) = reputations.get(&account_id){
+            if reputation + amount > MAX_REPUTATION {
+                MAX_REPUTATION
+            } else {
+                reputation + amount
+            }
+        } else {
+            if *amount >= MAX_REPUTATION {
+                MAX_REPUTATION
+            } else {
+                *amount
+            }
+        };
         
-        amount.clone()
+        reputations.insert(&account_id, &next_reputation);
+        
+        next_reputation        
     }
     
     pub fn internal_sub_reputation(&mut self, account_id: &AccountId, amount: &u32) -> u32 {
         let reputations = &mut self.reputation_by_id;
-        if let Some(reputation) = reputations.get(&account_id) {
         
-            if reputation > MIN_REPUTATION {
-            
-                if reputation < *amount {
-                    reputations.insert(&account_id, &MIN_REPUTATION);
-                    return MIN_REPUTATION;
-                } else {
-                    let decreased_reputation = reputation - amount;
-                    
-                    reputations.insert(&account_id, &decreased_reputation);
-                    return decreased_reputation;
-                }
-            }    
-            return MIN_REPUTATION;            
-        }        
+        let next_reputation = if let Some(reputation) = reputations.get(&account_id){
+            if reputation > *amount {
+                reputation - amount
+            } else {
+                MIN_REPUTATION
+            }
+        } else {
+            MIN_REPUTATION
+        };
         
-        MIN_REPUTATION
+        reputations.insert(&account_id, &next_reputation);
+        
+        next_reputation
     }
     
     pub fn internal_reputation(&self, account_id: &AccountId) -> u32 {
