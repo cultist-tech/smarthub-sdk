@@ -40,6 +40,7 @@ pub struct MarketFeature {
     pub ft_token_ids: UnorderedSet<AccountId>,
     pub storage_deposits: LookupMap<AccountId, Balance>,
     pub bid_history_length: u8,
+    pub market_fees_paid: LookupMap<AccountId, u128>,
     pub reputation: Option<ReputationFeature>,
 }
 
@@ -57,10 +58,11 @@ pub enum StorageKey {
     },
     FTTokenIds,
     StorageDeposits,
+    Fees,
 }
 
 impl MarketFeature {
-    pub fn new<M1, M2, M3, M4, M5, M6>(
+    pub fn new<M1, M2, M3, M4, M5, M6, M7>(
         owner_id: AccountId,
         ft_token_ids: Option<Vec<FungibleTokenId>>,
         bid_history_length: Option<u8>,
@@ -69,7 +71,8 @@ impl MarketFeature {
         by_contract_prefix: M3,
         ft_tokens_prefix: M4,
         storage_prefix: M5,
-        reputation_prefix: Option<M6>,
+        fees_prefix: M6,
+        reputation_prefix: Option<M7>,
     )
         -> Self
         where
@@ -79,6 +82,7 @@ impl MarketFeature {
             M4: IntoStorageKey,
             M5: IntoStorageKey,
             M6: IntoStorageKey,
+            M7: IntoStorageKey,
     {
         let mut this = Self {
             owner_id: owner_id.into(),
@@ -88,6 +92,7 @@ impl MarketFeature {
             ft_token_ids: UnorderedSet::new(ft_tokens_prefix),
             storage_deposits: LookupMap::new(storage_prefix),
             bid_history_length: bid_history_length.unwrap_or(BID_HISTORY_LENGTH_DEFAULT),
+            market_fees_paid: LookupMap::new(fees_prefix),
             reputation: reputation_prefix.map(ReputationFeature::new),
         };
         // support NEAR by default
@@ -191,6 +196,8 @@ impl MarketCore for MarketFeature {
         let fee = self.internal_market_fee(&price, &buyer_id);
         
         let deposit = deposit - fee;
+        
+        self.market_fees_paid.insert(&buyer_id, &fee);
 
         if !sale.is_auction && deposit == price {
             self.market_process_purchase(
@@ -232,14 +239,15 @@ impl MarketCore for MarketFeature {
                 "Can't pay less than or equal to current bid price: {}",
                 current_bid.price.0
             );
-            if ft_token_id == near_ft() {
-                Promise::new(current_bid.owner_id.clone()).transfer(u128::from(current_bid.price));
+            let fee = self.market_fees_paid.remove(&current_bid.owner_id).unwrap_or_else(|| 0);
+            if ft_token_id == near_ft() {                
+                Promise::new(current_bid.owner_id.clone()).transfer(u128::from(current_bid.price) + fee);
             } else {
                 ext_ft
                     ::ext(ft_token_id.clone())
                     .with_static_gas(GAS_FOR_FT_TRANSFER)
                     .with_attached_deposit(1)
-                    .ft_transfer(current_bid.owner_id.clone(), current_bid.price, None);
+                    .ft_transfer(current_bid.owner_id.clone(), U128(current_bid.price.0 + fee), None);
             }
         }
 
@@ -349,7 +357,8 @@ impl MarketCore for MarketFeature {
         let payout: Payout = if let Some(payout_option) = payout_option {
             payout_option
         } else {
-            let fee = self.internal_market_fee(&price.0, &buyer_id);
+            //let fee = self.internal_market_fee(&price.0, &buyer_id);
+            let fee = self.market_fees_paid.remove(&buyer_id).unwrap_or_else(|| 0);
             if ft_token_id == AccountId::new_unchecked("near".to_string()) {
                 Promise::new(buyer_id).transfer(u128::from(price) + fee);
             }

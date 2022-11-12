@@ -8,6 +8,7 @@ use near_sdk::borsh::{ self, BorshSerialize };
 use crate::ft::base::external::ext_ft;
 use crate::utils::{ contract_token_id, hash_account_id, near_ft };
 use crate::reputation::MAX_REPUTATION;
+use near_sdk::json_types::{ U128 };
 
 #[derive(BorshStorageKey, BorshSerialize)]
 pub enum StorageKey {
@@ -25,14 +26,15 @@ impl MarketFeature {
     pub(crate) fn refund_all_bids(&mut self, bids: &Bids) {
         for (bid_ft, bid_vec) in bids {
             let bid = &bid_vec[bid_vec.len() - 1];
+            let fee = self.market_fees_paid.remove(&bid.owner_id).unwrap_or_else(|| 0);
             if bid_ft == &near_ft() {
-                Promise::new(bid.owner_id.clone()).transfer(u128::from(bid.price));
+                Promise::new(bid.owner_id.clone()).transfer(u128::from(bid.price) + fee);
             } else {
                 ext_ft
                     ::ext(bid_ft.clone())
                     .with_static_gas(GAS_FOR_FT_TRANSFER)
                     .with_attached_deposit(1)
-                    .ft_transfer(bid.owner_id.clone(), bid.price, None);
+                    .ft_transfer(bid.owner_id.clone(), U128(bid.price.0 + fee), None);
             }
         }
     }
