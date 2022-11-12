@@ -13,3 +13,17 @@ macro_rules! impl_reputation_feature {
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_reputation_sharing {
+    ($contract:ident, $market:ident) => {
+        use $crate::reputation::{ ReputationSharing };
+
+        #[near_bindgen]
+        impl ReputationSharing for $contract {        
+          fn share_reputation_with(&mut self, account_id: AccountId, amount: u32) -> u32 {
+            self.$market.reputation.as_mut().expect("Reputation is not implemented in contract").share_reputation_with(account_id, amount)
+          }
+        }
+    };
+}

@@ -349,11 +349,12 @@ impl MarketCore for MarketFeature {
         let payout: Payout = if let Some(payout_option) = payout_option {
             payout_option
         } else {
+            let fee = self.internal_market_fee(&price.0, &buyer_id);
             if ft_token_id == AccountId::new_unchecked("near".to_string()) {
-                Promise::new(buyer_id).transfer(u128::from(price));
+                Promise::new(buyer_id).transfer(u128::from(price) + fee);
             }
             // leave function and return all FTs in ft_resolve_transfer
-            return price;
+            return U128(price.0 + fee);
         };
         // Going to payout everyone, first return all outstanding bids (accepted offer bid was already removed)
         self.refund_all_bids(&sale.bids);

@@ -58,7 +58,7 @@ async fn mint_token_to_user(
     worker: &Worker<Sandbox>,
     nft_contract: &Contract,
     token: &String,
-    user: &Account,    
+    user: &Account
 ) -> anyhow::Result<CallExecutionDetails> {
     let nft_outcome = nft_contract
         .call(&worker, "nft_mint")
@@ -102,12 +102,12 @@ async fn test_reputation() -> anyhow::Result<()> {
     let res = create_market_contract(&worker, &market_contract).await?;
     println!("Market create new_default_meta outcome: {:#?}", res);
 
-    let token_id = "nft".to_string();    
+    let token_id = "nft".to_string();
 
     //Mint nft token to Alice
     let res = mint_token_to_user(&worker, &nft_contract, &token_id, &alice).await?;
     println!("Nft_mint NFT to Alice outcome: {:#?}", res);
-    
+
     //Check reputation before sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
@@ -119,13 +119,13 @@ async fn test_reputation() -> anyhow::Result<()> {
 
     println!("Alice reputation outcome: {:#?}", res);
     assert_eq!(res, 0);
-    
+
     // Price for sale
     let price = U128(PRICE);
-    
+
     let mut sale_conditions: SaleConditions = HashMap::new();
     sale_conditions.insert(near_ft(), price);
-           
+
     //Make arg string to approve NFT to market
     let approve_msg = serde_json
         ::to_string(
@@ -151,8 +151,8 @@ async fn test_reputation() -> anyhow::Result<()> {
         .transact().await?;
 
     println!("Nft_approve NFT outcome: {:#?}", res);
-    assert!(res.is_success());   
-    
+    assert!(res.is_success());
+
     //Check Bobs reputation before sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
@@ -162,13 +162,13 @@ async fn test_reputation() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Bob reputation before by outcome: {:#?}", res);
-    assert_eq!(res, 0);   
-    
-    let fee = PRICE * 300u128/10_000u128; 
-    
-    let price_and_fee = PRICE + fee;    
-    
+    println!("Bob reputation before sale outcome: {:#?}", res);
+    assert_eq!(res, 0);
+
+    let fee = (PRICE * 300u128) / 10_000u128;
+
+    let price_and_fee = PRICE + fee;
+
     //Buy nft from market
     let res = bob
         .call(&worker, market_contract.id(), "market_offer")
@@ -183,9 +183,9 @@ async fn test_reputation() -> anyhow::Result<()> {
         .transact().await?;
 
     println!("Market_offer NFT outcome: {:#?}", res);
-    assert!(res.is_success());    
-    
-     //Check Alice reputation after sale
+    assert!(res.is_success());
+
+    //Check Alice reputation after sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
         .args_json(json!({
@@ -196,7 +196,7 @@ async fn test_reputation() -> anyhow::Result<()> {
 
     println!("Alice reputation after sale outcome: {:#?}", res);
     assert_eq!(res, SALE_INCREMENT);
-    
+
     //Check Bob reputation after sale
     let res: serde_json::Value = market_contract
         .call(&worker, "reputation")
@@ -206,8 +206,49 @@ async fn test_reputation() -> anyhow::Result<()> {
         .view().await?
         .json()?;
 
-    println!("Alice reputation outcome: {:#?}", res);
+    println!("Bob reputation after sale outcome: {:#?}", res);
     assert_eq!(res, BUY_INCREMENT);
+
+    let shared_amount = 4;
+
+    //Alice shares reputation with bob
+    let res = alice
+        .call(&worker, market_contract.id(), "share_reputation_with")
+        .args_json(
+            json!({
+            "account_id": bob.id(),
+            "amount": shared_amount,
+        })
+        )?
+        .gas(near_units::parse_gas!("300 T") as u64)
+        .transact().await?;
+
+    println!("Alice share reputation outcome: {:#?}", res);
+    assert!(res.is_success());
+
+    //Check Alice reputation after share
+    let res: serde_json::Value = market_contract
+        .call(&worker, "reputation")
+        .args_json(json!({
+            "account_id": alice.id(),
+        }))?
+        .view().await?
+        .json()?;
+
+    println!("Alice reputation after share outcome: {:#?}", res);
+    assert_eq!(res, SALE_INCREMENT - shared_amount);
+
+    //Check Bob reputation after share
+    let res: serde_json::Value = market_contract
+        .call(&worker, "reputation")
+        .args_json(json!({
+            "account_id": bob.id(),
+        }))?
+        .view().await?
+        .json()?;
+
+    println!("Bob reputation after share outcome: {:#?}", res);
+    assert_eq!(res, BUY_INCREMENT + shared_amount);
 
     Ok(())
 }
