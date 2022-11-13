@@ -187,10 +187,6 @@ impl MarketCore for MarketFeature {
 
         let deposit = env::attached_deposit();
         assert!(deposit > 0, "Attached deposit must be greater than 0");
-        
-        let fee = self.internal_market_fee(&price, &buyer_id);
-        
-        let deposit = deposit - fee;
 
         if !sale.is_auction && deposit == price {
             self.market_process_purchase(
@@ -284,6 +280,10 @@ impl MarketCore for MarketFeature {
         buyer_id: AccountId
     ) -> Promise {
         let sale = self.internal_remove_sale(&nft_contract_id, &token_id);
+        
+        let fee = self.internal_market_fee(&price.0, &buyer_id);
+        
+        let price = U128(price.0 - fee);
 
         ext_nft
             ::ext(nft_contract_id.clone())
@@ -337,6 +337,7 @@ impl MarketCore for MarketFeature {
                         for &value in payout.payout.values() {
                             remainder = remainder.checked_sub(value.0)?;
                         }
+                        
                         if remainder == 0 || remainder == 1 {
                             Some(payout)
                         } else {

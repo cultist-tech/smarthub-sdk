@@ -1,4 +1,4 @@
-use crate::market::base::{ GAS_FOR_FT_TRANSFER, MarketFeature, MARKET_BASE_FEE, MARKET_REDUCED_FEE, MARKET_MIN_FEE };
+use crate::market::base::{ GAS_FOR_FT_TRANSFER, MarketFeature };
 use crate::market::metadata::{ TokenId, Bids, MarketOnNftApproveArgs };
 use near_sdk::collections::UnorderedSet;
 use std::collections::HashMap;
@@ -7,7 +7,6 @@ use crate::market::{ Sale, MarketRemoveSale, MarketCreateSale };
 use near_sdk::borsh::{ self, BorshSerialize };
 use crate::ft::base::external::ext_ft;
 use crate::utils::{ contract_token_id, hash_account_id, near_ft };
-use crate::reputation::MAX_REPUTATION;
 
 #[derive(BorshStorageKey, BorshSerialize)]
 pub enum StorageKey {
@@ -149,28 +148,5 @@ impl MarketFeature {
         }).emit();
 
         PromiseOrValue::Value("true".to_string())
-    }
-    
-    pub fn internal_market_fee(
-        &mut self,
-        price: &u128,
-        account_id: &AccountId,        
-    ) -> u128 {
-        let mut fee_percent = MARKET_BASE_FEE;  
-        
-        if self.reputation.is_some() {
-            let reputation = self.reputation.as_ref().unwrap().internal_reputation(&account_id);
-            
-            if reputation > MAX_REPUTATION/2 && reputation != MAX_REPUTATION {
-                fee_percent = MARKET_REDUCED_FEE;
-            } 
-            
-            if reputation == MAX_REPUTATION {
-                fee_percent = MARKET_MIN_FEE;
-            }
-        }
-        let fee: u128 = price * fee_percent as u128 / 10_000u128;
-        
-        fee
-    }
+    }    
 }

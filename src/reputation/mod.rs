@@ -11,5 +11,7 @@ pub trait ContractReputation {
 }
 
 pub trait ReputationSharing {
-    fn share_reputation_with(&mut self, account_id: AccountId, amount: u32) -> u32;
+    fn reputation_share(&mut self, account_id: AccountId, amount: u32) -> u32;
+    
+    fn reputation_shares_left(&self, account_id: AccountId) -> u32;
 }

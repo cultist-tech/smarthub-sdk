@@ -2,6 +2,7 @@ use near_sdk::{ env, AccountId, IntoStorageKey, BorshStorageKey };
 use near_sdk::collections::LookupMap;
 use near_sdk::borsh::{ self, BorshDeserialize, BorshSerialize };
 use crate::reputation::{ ContractReputation, ReputationSharing };
+use std::cmp;
 
 pub const MAX_REPUTATION: u32 = 100_000;
 const MIN_REPUTATION: u32 = 0;
@@ -9,12 +10,12 @@ const MIN_REPUTATION: u32 = 0;
 pub const BUY_INCREMENT: u32 = 10;
 pub const SALE_INCREMENT: u32 = 5;
 
-const DAILY_SHARE_CAP: u32 = 5;
+const DAILY_SHARE_CAP: u32 = 6;
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct ReputationFeature {
     reputation_by_id: LookupMap<AccountId, u32>,
-    shares_by_id: LookupMap<AccountId, LookupMap<u64, u32>>,
+    shares_by_id: Option<LookupMap<AccountId, LookupMap<u64, u32>>>,
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
@@ -34,9 +35,10 @@ pub(crate) fn current_day() -> u64 {
 impl ReputationFeature {
     pub fn new<R>(prefix: R) -> Self where R: IntoStorageKey {
         let prefix: Vec<u8> = prefix.into_storage_key();
+        let sharing_prefix = Some([prefix.clone() , "shares".into()].concat());
         let this = Self {
-            reputation_by_id: LookupMap::new(prefix.clone()),
-            shares_by_id: LookupMap::new([prefix, "s".into()].concat()),
+            reputation_by_id: LookupMap::new(prefix),
+            shares_by_id: sharing_prefix.map(LookupMap::new),             
         };
 
         this
@@ -76,8 +78,10 @@ impl ReputationFeature {
 
     pub(crate) fn internal_decrease_shares(&mut self, sender_id: &AccountId, amount: &u32) -> u32 {
         let day = current_day();
+        
+        let shares_by_id = self.shares_by_id.as_mut().expect("Reputation sharing is not implemented");
 
-        let mut account_shares = self.shares_by_id.get(&sender_id).unwrap_or_else(||
+        let mut account_shares = shares_by_id.get(&sender_id).unwrap_or_else(||
             LookupMap::new(StorageKey::SharesPerAccount {
                 account_hash: env::sha256(sender_id.as_bytes()),
             })
@@ -92,9 +96,28 @@ impl ReputationFeature {
 
         let next_used = used + amount;
         account_shares.insert(&day, &next_used);
-        self.shares_by_id.insert(&sender_id, &account_shares);
+        shares_by_id.insert(&sender_id, &account_shares);
 
         left_for_share - amount
+    }
+    
+    pub(crate) fn internal_shares_left(&self, account_id: &AccountId) -> u32 {
+        let day = current_day();
+
+        let reputation = self.internal_reputation(&account_id);  
+        
+        let shares_by_id = self.shares_by_id.as_ref().expect("Reputation sharing is not implemented");
+        
+        let shares_left = if let Some(account_shares) = shares_by_id.get(&account_id) {
+            let used = account_shares.get(&day).unwrap_or_else(|| 0);
+            let left_for_share = DAILY_SHARE_CAP - used;
+        
+            cmp::min(reputation, left_for_share)
+        } else {
+            cmp::min(reputation, DAILY_SHARE_CAP)
+        };
+
+        shares_left        
     }
 }
 
@@ -105,7 +128,7 @@ impl ContractReputation for ReputationFeature {
 }
 
 impl ReputationSharing for ReputationFeature {
-    fn share_reputation_with(&mut self, receiver_id: AccountId, amount: u32) -> u32 {
+    fn reputation_share(&mut self, receiver_id: AccountId, amount: u32) -> u32 {
         let sender_id = env::predecessor_account_id();
 
         let reputation = self.internal_reputation(&sender_id);
@@ -120,5 +143,9 @@ impl ReputationSharing for ReputationFeature {
         self.internal_add_reputation(&receiver_id, &amount);
 
         left_for_share
+    }
+    
+    fn reputation_shares_left(&self, account_id: AccountId) -> u32 {
+        self.internal_shares_left(&account_id)        
     }
 }

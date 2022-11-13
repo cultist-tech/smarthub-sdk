@@ -118,8 +118,8 @@ async fn test_reputation() -> anyhow::Result<()> {
         .json()?;
 
     println!("Alice reputation outcome: {:#?}", res);
-    assert_eq!(res, 0);
-
+    assert_eq!(res, 0);      
+    
     // Price for sale
     let price = U128(PRICE);
 
@@ -163,11 +163,7 @@ async fn test_reputation() -> anyhow::Result<()> {
         .json()?;
 
     println!("Bob reputation before sale outcome: {:#?}", res);
-    assert_eq!(res, 0);
-
-    let fee = (PRICE * 300u128) / 10_000u128;
-
-    let price_and_fee = PRICE + fee;
+    assert_eq!(res, 0);    
 
     //Buy nft from market
     let res = bob
@@ -178,7 +174,7 @@ async fn test_reputation() -> anyhow::Result<()> {
             "token_id": token_id,                           
         })
         )?
-        .deposit(price_and_fee)
+        .deposit(PRICE)
         .gas(near_units::parse_gas!("300 T") as u64)
         .transact().await?;
 
@@ -213,10 +209,10 @@ async fn test_reputation() -> anyhow::Result<()> {
 
     //Alice shares reputation with bob
     let res = alice
-        .call(&worker, market_contract.id(), "share_reputation_with")
+        .call(&worker, market_contract.id(), "reputation_share")
         .args_json(
             json!({
-            "account_id": bob.id(),
+            "receiver_id": bob.id(),
             "amount": shared_amount,
         })
         )?
@@ -249,6 +245,18 @@ async fn test_reputation() -> anyhow::Result<()> {
 
     println!("Bob reputation after share outcome: {:#?}", res);
     assert_eq!(res, BUY_INCREMENT + shared_amount);
+    
+    //Show Alice reputation available for sharing this day
+    let res: serde_json::Value = alice
+        .call(&worker, market_contract.id(), "reputation_shares_left")
+        .args_json(json!({
+            "account_id": alice.id()
+        }))?
+        .view().await?
+        .json()?;
+
+    println!("Alice reputation_shares_left for sharing this day outcome: {:#?}", res);
+    assert_eq!(res, SALE_INCREMENT - shared_amount);
 
     Ok(())
 }
