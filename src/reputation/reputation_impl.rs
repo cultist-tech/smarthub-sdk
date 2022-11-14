@@ -33,12 +33,13 @@ pub(crate) fn current_day() -> u64 {
 }
 
 impl ReputationFeature {
-    pub fn new<R>(prefix: R) -> Self where R: IntoStorageKey {
+    pub fn new<R>(prefix: R, shares_prefix: Option<Vec<u8>>) -> Self where
+        R: IntoStorageKey,
+    {
         let prefix: Vec<u8> = prefix.into_storage_key();
-        let sharing_prefix = Some([prefix.clone() , "shares".into()].concat());
         let this = Self {
             reputation_by_id: LookupMap::new(prefix),
-            shares_by_id: sharing_prefix.map(LookupMap::new),             
+            shares_by_id: shares_prefix.map(LookupMap::new),
         };
 
         this
@@ -78,7 +79,7 @@ impl ReputationFeature {
 
     pub(crate) fn internal_decrease_shares(&mut self, sender_id: &AccountId, amount: &u32) -> u32 {
         let day = current_day();
-        
+
         let shares_by_id = self.shares_by_id.as_mut().expect("Reputation sharing is not implemented");
 
         let mut account_shares = shares_by_id.get(&sender_id).unwrap_or_else(||
@@ -100,24 +101,24 @@ impl ReputationFeature {
 
         left_for_share - amount
     }
-    
+
     pub(crate) fn internal_shares_left(&self, account_id: &AccountId) -> u32 {
         let day = current_day();
 
-        let reputation = self.internal_reputation(&account_id);  
-        
+        let reputation = self.internal_reputation(&account_id);
+
         let shares_by_id = self.shares_by_id.as_ref().expect("Reputation sharing is not implemented");
-        
+
         let shares_left = if let Some(account_shares) = shares_by_id.get(&account_id) {
             let used = account_shares.get(&day).unwrap_or_else(|| 0);
             let left_for_share = DAILY_SHARE_CAP - used;
-        
+
             cmp::min(reputation, left_for_share)
         } else {
             cmp::min(reputation, DAILY_SHARE_CAP)
         };
 
-        shares_left        
+        shares_left
     }
 }
 
@@ -144,8 +145,8 @@ impl ReputationSharing for ReputationFeature {
 
         left_for_share
     }
-    
+
     fn reputation_shares_left(&self, account_id: AccountId) -> u32 {
-        self.internal_shares_left(&account_id)        
+        self.internal_shares_left(&account_id)
     }
 }

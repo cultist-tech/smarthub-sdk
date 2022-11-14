@@ -60,7 +60,7 @@ pub enum StorageKey {
 }
 
 impl MarketFeature {
-    pub fn new<M1, M2, M3, M4, M5, M6>(
+    pub fn new<M1, M2, M3, M4, M5, R1>(
         owner_id: AccountId,
         ft_token_ids: Option<Vec<FungibleTokenId>>,
         bid_history_length: Option<u8>,
@@ -69,7 +69,7 @@ impl MarketFeature {
         by_contract_prefix: M3,
         ft_tokens_prefix: M4,
         storage_prefix: M5,
-        reputation_prefix: Option<M6>,
+        reputation_prefix: Option<R1>,
     )
         -> Self
         where
@@ -78,8 +78,11 @@ impl MarketFeature {
             M3: IntoStorageKey,
             M4: IntoStorageKey,
             M5: IntoStorageKey,
-            M6: IntoStorageKey,
+            R1: IntoStorageKey,
     {
+        let reputation = reputation_prefix.map(|prefix| {
+            ReputationFeature::new(prefix, None)
+        });
         let mut this = Self {
             owner_id: owner_id.into(),
             sales: UnorderedMap::new(sales_prefix),
@@ -88,7 +91,7 @@ impl MarketFeature {
             ft_token_ids: UnorderedSet::new(ft_tokens_prefix),
             storage_deposits: LookupMap::new(storage_prefix),
             bid_history_length: bid_history_length.unwrap_or(BID_HISTORY_LENGTH_DEFAULT),
-            reputation: reputation_prefix.map(ReputationFeature::new),
+            reputation,
         };
         // support NEAR by default
         this.ft_token_ids.insert(&near_ft());
@@ -280,9 +283,9 @@ impl MarketCore for MarketFeature {
         buyer_id: AccountId
     ) -> Promise {
         let sale = self.internal_remove_sale(&nft_contract_id, &token_id);
-        
+
         let fee = self.internal_market_fee(&price.0, &buyer_id);
-        
+
         let price = U128(price.0 - fee);
 
         ext_nft
@@ -337,7 +340,7 @@ impl MarketCore for MarketFeature {
                         for &value in payout.payout.values() {
                             remainder = remainder.checked_sub(value.0)?;
                         }
-                        
+
                         if remainder == 0 || remainder == 1 {
                             Some(payout)
                         } else {
@@ -359,11 +362,11 @@ impl MarketCore for MarketFeature {
         };
         // Going to payout everyone, first return all outstanding bids (accepted offer bid was already removed)
         self.refund_all_bids(&sale.bids);
-        
-        if self.reputation.is_some() {                
+
+        if self.reputation.is_some() {
             self.reputation.as_mut().unwrap().internal_add_reputation(&sale.owner_id, &SALE_INCREMENT);
             self.reputation.as_mut().unwrap().internal_add_reputation(&buyer_id, &BUY_INCREMENT);
-        }           
+        }
 
         // NEAR payouts
         if ft_token_id == near_ft() {
@@ -400,7 +403,7 @@ impl MarketCore for MarketFeature {
                 payout: &payout.payout,
                 ft_token_id: &ft_token_id,
                 price: &price,
-            }).emit();        
+            }).emit();
 
             // keep all FTs (already transferred for payouts)
             U128(0)
