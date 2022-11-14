@@ -148,5 +148,5 @@ impl MarketFeature {
         }).emit();
 
         PromiseOrValue::Value("true".to_string())
-    }
+    }    
 }

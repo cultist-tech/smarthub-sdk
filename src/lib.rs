@@ -14,6 +14,7 @@ pub mod owner;
 pub mod blacklist;
 pub mod whitelist;
 pub mod storage;
+pub mod reputation;
 
 pub mod event;
 pub mod utils;

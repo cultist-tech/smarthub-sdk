@@ -25,6 +25,10 @@ impl MarketFeature {
             .expect("Not for sale in that token type");
 
         assert!(amount.0 > 0, "Amount must be greater than 0");
+        
+        let fee = self.internal_market_fee(&price.0, &sender_id);
+        
+        let amount = &U128(amount.0 - fee);
 
         if !sale.is_auction && amount == &price {
             self.market_process_purchase(
