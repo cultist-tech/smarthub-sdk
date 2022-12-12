@@ -142,8 +142,8 @@ Example Repository:
 
 API:
 
-- [ ] core
-- [ ] enumeration
+- [x] core
+- [x] enumeration
 
 ## Escrow
 
@@ -164,7 +164,7 @@ Reputation parameter for the participants of the project, will give certain bonu
 Example Repository:
 [cultist-tech/near-reputation](https://github.com/cultist-tech/near-reputation)
 
-- [ ] core
+- [x] core
 
 ## Referral
 
@@ -173,7 +173,7 @@ Influencer advertises the project by providing a referral link. And in the refer
 Example Repository:
 [cultist-tech/near-referral](https://github.com/cultist-tech/near-referral)
 
-- [ ] core
+- [x] core
 
 ## Tools
 
