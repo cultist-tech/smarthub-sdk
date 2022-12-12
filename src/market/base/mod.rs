@@ -1,6 +1,7 @@
 mod core_impl;
 mod internal;
 mod receivers;
+mod fee;
 
 pub use self::core_impl::*;
 use near_sdk::{ AccountId, Promise, Balance };
