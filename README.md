@@ -7,9 +7,9 @@
   </p>
 
   <p>
-    <a href="https://crates.io/crates/mfight_sdk"><img src="https://img.shields.io/crates/v/mfight_sdk.svg?style=flat-square" alt="Crates.io version" /></a>
-    <a href="https://crates.io/crates/mfight_sdk"><img src="https://img.shields.io/crates/d/mfight_sdk.svg?style=flat-square" alt="Download" /></a>
-    <a href="https://buildkite.com/nearprotocol/mfight_sdk-rs"><img src="https://badge.buildkite.com/3bdfe06edbbfe67700833f865fe573b9ac6db517392bfc97dc.svg" alt="Buildkite Build" /></a>
+    <a href="https://crates.io/crates/smarthub-sdk"><img src="https://img.shields.io/crates/v/smarthub-sdk.svg?style=flat-square" alt="Crates.io version" /></a>
+    <a href="https://crates.io/crates/smarthub-sdk"><img src="https://img.shields.io/crates/d/smarthub-sdk.svg?style=flat-square" alt="Download" /></a>
+    <a href="https://buildkite.com/nearprotocol/smarthub-sdk-rs"><img src="https://badge.buildkite.com/3bdfe06edbbfe67700833f865fe573b9ac6db517392bfc97dc.svg" alt="Buildkite Build" /></a>
   </p>
 </div>
 
