@@ -1,6 +1,6 @@
 <div align="center">
 
-  <h1><code>mfight_sdk</code></h1>
+  <h1><code>smarthub-sdk</code></h1>
 
   <p>
     <strong>Rust library for writing NEAR smart contracts.</strong>
